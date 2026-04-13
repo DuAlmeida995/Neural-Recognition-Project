@@ -23,8 +23,8 @@ O código gera:
 * **Vídeo 1 (MLP):** Treinamento e teste com Caracteres Completo
 * **Vídeo 2 (CNN):** Explicação da modelagem e resultados do Fashion MNIST
 
-## 🛠️ Como Executar
-(Adicionar aqui os comandos, ex: `python main.py`)
+## Como Executar
+
 
 ## Realizado por:
 * **Eduardo Almeida Cavalcanti de Melo** - 15526004
