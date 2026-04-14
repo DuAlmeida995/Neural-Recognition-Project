@@ -27,9 +27,23 @@ class MLP:
         self.a = sigmoide(self.z) 
         self.a = np.insert(self.a, 0, 1) # adiciona o bias na camada escondida
 
-        # calculo da camada de saída
+        # calculo da camada de saida
         self.y_in = np.dot(self.w, self.a)
         self.y = sigmoide (self.y_in)
         return self.y
     
+    def backpropagation(self, x, t):
+        x = np.insert(x, 0, 1) 
 
+        # calculo do erro na camada de saida
+        erro_saida = t - self.y
+        self.delta_saida = erro_saida * derivada_sigmoide(self.y_in)
+
+        # retropropagacao do erro para a camada escondida
+        w_sem_bias = self.w[:, 1:] # remove o bias da matriz w para calcular o erro escondido
+        erro_escondida = np.dot(self.delta_saida, w_sem_bias)
+        self.delta_escondida = erro_escondida * derivada_sigmoide(self.z)
+        delta_w = self.alpha * np.outer(self.delta_saida, self.a) # utilizei o np.outer aqui por conta que ele consegue pegar dois vetores e criar uma matriz onde cada posição (i, j) é o resultado de a[i] X b[j]
+        delta_v = self.alpha * np.outer(self.delta_escondida, x)
+        self.w = self.w + delta_w
+        self.v = self.v + delta_v 
