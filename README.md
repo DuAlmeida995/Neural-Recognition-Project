@@ -28,4 +28,5 @@ O código gera:
 
 ## Realizado por:
 * **Eduardo Almeida Cavalcanti de Melo** - 15526004
-* **Nome do Aluno 2** - Nº USP
+* **Júlio Arroio Silva** - 15466241
+* **Nome do Aluno 3** - Nº USP
