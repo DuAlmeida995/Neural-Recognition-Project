@@ -16,11 +16,14 @@ class MLP:
 
         # peso entre camada de entrada e camada escondida (matriz v)
         self.v = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1)) # o +1 em v e w se deve por conta do bias
+        self.v_anterior = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1)) # o +1 em v e w se deve por conta do bias
         # peso entre camada escondida e camada de saída (matriz w)
-        self.w = np.random.uniform(-1, 1, (self.n_saida, self.n_escondida + 1))   
+        self.w = np.random.uniform(-1, 1, (self.n_saida, self.n_escondida + 1)) 
+        self.w_anterior = np.random.uniform(-1, 1, (self.n_saida, self.n_escondida + 1)) 
 
     def feedforward(self, x):
-        x = np.insert(x, 0, 1) # adiciona o bias na entrada, eu tinha usado a funcao append inicialmente, porem como ela inserir no final, troquei pela insert para inserir o bias no inicio
+        if len(x) == self.n_entrada:
+            x = np.insert(x, 0, 1) # adiciona o bias na entrada, eu tinha usado a funcao append inicialmente, porem como ela inserir no final, troquei pela insert para inserir o bias no inicio
 
         # calculo da camada escondida
         self.z = np.dot(self.v, x) # usamos dot para calcular matriz x vetor (tambem podemos usa-lo para calcular matriz x matriz ou vetor x vetor)
@@ -29,15 +32,18 @@ class MLP:
 
         # calculo da camada de saida
         self.y_in = np.dot(self.w, self.a)
-        self.y = sigmoide (self.y_in)
+        #self.y = sigmoide (self.y_in)
+        self.y = np.heaviside(sigmoide(self.y_in) - 0.5, 0) #return np.heaviside(self.y - 0.5 ,0) # a funcao heaviside é equivalente a função step, ela é usada para converter a saida da rede em 0 ou 1, dependendo se o valor é menor ou maior que 0.5
         return self.y
     
     def backpropagation(self, x, t):
-        x = np.insert(x, 0, 1) 
+        if len(x) == self.n_entrada:
+            x = np.insert(x, 0, 1) 
 
         # calculo do erro na camada de saida
         erro_saida = t - self.y
         self.delta_saida = erro_saida * derivada_sigmoide(self.y_in)
+        self.erro_total = np.sum(erro_saida ** 2)/2 # calculo do erro total para monitorar o aprendizado da rede
 
         # retropropagacao do erro para a camada escondida
         w_sem_bias = self.w[:, 1:] # remove o bias da matriz w para calcular o erro escondido
@@ -47,3 +53,33 @@ class MLP:
         delta_v = self.alpha * np.outer(self.delta_escondida, x)
         self.w = self.w + delta_w
         self.v = self.v + delta_v 
+
+# Teste da rede neural para aprender a função XOR
+mlp = MLP(2, 2, 1, 0.1);
+
+i = 1
+
+while not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior)): # Enquanto os pesos não convergirem
+    mlp.v_anterior = mlp.v
+    mlp.w_anterior = mlp.w
+
+    mlp.feedforward(np.array([-1,-1]))
+    mlp.backpropagation(np.array([-1,-1]), np.array([0]))
+
+    mlp.feedforward(np.array([-1,1]))
+    mlp.backpropagation(np.array([-1,1]), np.array([1]))
+
+    mlp.feedforward(np.array([1,-1]))
+    mlp.backpropagation(np.array([1,-1]), np.array([1]))
+
+    mlp.feedforward(np.array([1,1]))
+    mlp.backpropagation(np.array([1,1]), np.array([0]))
+
+    print("Iteracao:", i, "Pesos v:", mlp.v, "Pesos w:", mlp.w, "Erro total:", mlp.erro_total)
+    i += 1
+
+
+print("Saida para [-1, -1]:", mlp.feedforward(np.array([-1, -1])))
+print("Saida para [-1, 1]:", mlp.feedforward(np.array([-1, 1])))
+print("Saida para [1, -1]:", mlp.feedforward(np.array([1, -1])))
+print("Saida para [1, 1]:", mlp.feedforward(np.array([1, 1])))
