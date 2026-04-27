@@ -32,8 +32,8 @@ class MLP:
 
         # calculo da camada de saida
         self.y_in = np.dot(self.w, self.a)
-        #self.y = sigmoide (self.y_in)
-        self.y = np.heaviside(sigmoide(self.y_in) - 0.5, 0) #return np.heaviside(self.y - 0.5 ,0) # a funcao heaviside é equivalente a função step, ela é usada para converter a saida da rede em 0 ou 1, dependendo se o valor é menor ou maior que 0.5
+        self.y = sigmoide (self.y_in)
+        # self.y = np.heaviside(sigmoide(self.y_in) - 0.5, 0) #return np.heaviside(self.y - 0.5 ,0) # a funcao heaviside é equivalente a função step, ela é usada para converter a saida da rede em 0 ou 1, dependendo se o valor é menor ou maior que 0.5
         return self.y
     
     def backpropagation(self, x, t):
@@ -54,32 +54,87 @@ class MLP:
         self.w = self.w + delta_w
         self.v = self.v + delta_v 
 
-# Teste da rede neural para aprender a função XOR
-mlp = MLP(2, 2, 1, 0.1);
+# # Teste da rede neural para aprender a função XOR
+# mlp = MLP(120, 100, 26, 0.1);
+
+# i = 1
+
+# while not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior)): # Enquanto os pesos não convergirem
+#     mlp.v_anterior = mlp.v
+#     mlp.w_anterior = mlp.w
+
+#     mlp.feedforward(np.array([-1,-1]))
+#     mlp.backpropagation(np.array([-1,-1]), np.array([0]))
+
+#     mlp.feedforward(np.array([-1,1]))
+#     mlp.backpropagation(np.array([-1,1]), np.array([1]))
+
+#     mlp.feedforward(np.array([1,-1]))
+#     mlp.backpropagation(np.array([1,-1]), np.array([1]))
+
+#     mlp.feedforward(np.array([1,1]))
+#     mlp.backpropagation(np.array([1,1]), np.array([0]))
+
+#     print("Iteracao:", i, "Pesos v:", mlp.v, "Pesos w:", mlp.w, "Erro total:", mlp.erro_total)
+#     i += 1
+
+# print("Saida para [-1, -1]:", mlp.feedforward(np.array([-1, -1])))
+# print("Saida para [-1, 1]:", mlp.feedforward(np.array([-1, 1])))
+# print("Saida para [1, -1]:", mlp.feedforward(np.array([1, -1])))
+# print("Saida para [1, 1]:", mlp.feedforward(np.array([1, 1])))
+
+
+
+# Carregamento dos dados
+caracteristicasDuasDimensoes = np.load("Conjunto de Dados/caracteres-completo/X.npy")
+caracteristicas = caracteristicasDuasDimensoes.reshape(caracteristicasDuasDimensoes.shape[0], -1) # reshape para transformar a matriz de 3 dimensoes em uma matriz de 2 dimensoes, onde cada linha é um vetor de caracteristicas
+# print(caracteristicas[0])
+# print(caracteristicas[0].shape)
+
+rotulo = np.load("Conjunto de Dados/caracteres-completo/Y_classe.npy")
+
+mlp = MLP(120, 70, 26, 0.2);
+
+acertos = 0
+acertos_treinamento = 0
+
+erros = 0
+erros_treinamento = 0
+
+# print(caracteristicasDuasDimensoes.shape)
+# print(caracteristicas.shape[0])
 
 i = 1
-
-while not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior)): # Enquanto os pesos não convergirem
+while ((not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior))) and i < 10000): # Enquanto os pesos não convergirem
     mlp.v_anterior = mlp.v
     mlp.w_anterior = mlp.w
 
-    mlp.feedforward(np.array([-1,-1]))
-    mlp.backpropagation(np.array([-1,-1]), np.array([0]))
-
-    mlp.feedforward(np.array([-1,1]))
-    mlp.backpropagation(np.array([-1,1]), np.array([1]))
-
-    mlp.feedforward(np.array([1,-1]))
-    mlp.backpropagation(np.array([1,-1]), np.array([1]))
-
-    mlp.feedforward(np.array([1,1]))
-    mlp.backpropagation(np.array([1,1]), np.array([0]))
+    for j in range(len(caracteristicas)-130):
+        mlp.feedforward(caracteristicas[j])
+        mlp.backpropagation(caracteristicas[j], rotulo[j])
 
     print("Iteracao:", i, "Pesos v:", mlp.v, "Pesos w:", mlp.w, "Erro total:", mlp.erro_total)
     i += 1
 
+print("a")
 
-print("Saida para [-1, -1]:", mlp.feedforward(np.array([-1, -1])))
-print("Saida para [-1, 1]:", mlp.feedforward(np.array([-1, 1])))
-print("Saida para [1, -1]:", mlp.feedforward(np.array([1, -1])))
-print("Saida para [1, 1]:", mlp.feedforward(np.array([1, 1])))
+for j in range(len(caracteristicas)-130):
+    resultado = mlp.feedforward(caracteristicas[j])
+    if np.argmax(resultado) == np.argmax(rotulo[j]):
+        acertos += 1
+    else:
+        erros += 1
+for j in range(len(caracteristicas)-130, len(caracteristicas)):
+    resultado = mlp.feedforward(caracteristicas[j])
+    resultado = np.heaviside(resultado - 0.5, 0)
+    if np.argmax(resultado) == np.argmax(rotulo[j]):
+        acertos += 1
+        acertos_treinamento += 1
+    else:
+        erros += 1
+        erros_treinamento += 1
+
+print("Acertos:", acertos)
+print("Erros:", erros)
+print("Acertos no treinamento:", acertos_treinamento)
+print("Erros no treinamento:", erros_treinamento)
