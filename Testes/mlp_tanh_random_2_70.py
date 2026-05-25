@@ -1,8 +1,20 @@
-import numpy as np
+# =============================================================================
+# Experimento: Variação do Número de Épocas — Tanh, 70 Neurônios, Série 2
+# =============================================================================
+# Segunda rodada do experimento mlp_tanh_random_1_70.py, com inicialização
+# aleatória diferente. Comparar as duas séries permite avaliar se os resultados
+# são estáveis independente da seed de inicialização dos pesos.
+#
+# Parâmetros fixos:
+#   - Função de ativação: Tanh
+#   - Camada escondida: 70 neurônios
+#   - Taxa de aprendizado (α): 0.1
+#   - Inicialização dos pesos: Aleatória
+#
+# Resultado salvo em 'Testes/estatisticas/mlp_tanh_random_2_70.npy'
+# =============================================================================
 
-# funcao de ativacao sigmoide e sua derivada
-def sigmoide(x):
-    return 1 / (1 + np.exp(-x))
+import numpy as np
 
 def derivada_sigmoide(x):
     return sigmoide(x) * (1 - sigmoide(x))

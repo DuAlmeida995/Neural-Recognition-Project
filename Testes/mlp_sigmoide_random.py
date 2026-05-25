@@ -1,3 +1,20 @@
+# =============================================================================
+# Experimento: Busca em Grade de Hiperparâmetros — Sigmoide, Pesos Aleatórios
+# =============================================================================
+# Este script realiza uma busca em grade (grid search) para encontrar a
+# melhor combinação de hiperparâmetros para a MLP:
+#
+#   - Taxa de aprendizado (α): valores de 0.1 a 0.9 (9 opções)
+#   - Tamanho da camada escondida: de 10 a 100 neurônios (passo 10 = 10 opções)
+#   Total: 9 × 10 = 90 combinações testadas
+#
+# Função de ativação: Sigmoide
+# Inicialização dos pesos: Aleatória (uniforme entre -1 e 1)
+#
+# Os resultados são salvos em 'Testes/estatisticas/pesosAleatoriosSigmoide.npy'
+# para visualização posterior no plot.py.
+# =============================================================================
+
 import numpy as np
 
 # funcao de ativacao sigmoide e sua derivada

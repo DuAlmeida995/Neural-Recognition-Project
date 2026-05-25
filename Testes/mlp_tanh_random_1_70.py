@@ -1,8 +1,21 @@
-import numpy as np
+# =============================================================================
+# Experimento: Variação do Número de Épocas — Tanh, 70 Neurônios, Série 1
+# =============================================================================
+# Idêntico ao mlp_sigmoide_random_1_70.py, mas usando a função de ativação
+# tanh. Permite comparar diretamente se a tanh converge mais rapidamente
+# (em menos épocas) do que a sigmoide para este conjunto de dados.
+#
+# Parâmetros fixos:
+#   - Função de ativação: Tanh
+#   - Camada escondida: 70 neurônios
+#   - Taxa de aprendizado (α): 0.1
+#   - Inicialização dos pesos: Aleatória
+# Parâmetro variado:
+#   - Limite de épocas: 1000, 2000, ..., 9000
+#
+# Resultado salvo em 'Testes/estatisticas/mlp_tanh_random_1_70.npy'
+# =============================================================================
 
-# funcao de ativacao sigmoide e sua derivada
-def sigmoide(x):
-    return 1 / (1 + np.exp(-x))
 import numpy as np
 
 # funcao de ativacao sigmoide e sua derivada

@@ -1,8 +1,22 @@
-import numpy as np
+# =============================================================================
+# Experimento: Busca em Grade de Hiperparâmetros — Tanh, Pesos Aleatórios
+# =============================================================================
+# Idêntico ao mlp_sigmoide_random.py, mas usando a função de ativação tanh
+# no lugar da sigmoide.
+#
+# A tanh mapeia para o intervalo (-1, 1) em vez de (0, 1). Por ser centrada
+# em zero, tende a produzir gradientes maiores e pode convergir mais rápido
+# em alguns casos. Comparar com a versão sigmoide permite avaliar qual
+# função de ativação é mais adequada para este problema.
+#
+# Função de ativação: Tanh
+# Inicialização dos pesos: Aleatória (uniforme entre -1 e 1)
+# Parâmetros variados: α (0.1–0.9) × camada escondida (10–100, passo 10)
+#
+# Resultado salvo em 'Testes/estatisticas/pesosAleatoriosTanh.npy'
+# =============================================================================
 
-# funcao de ativacao sigmoide e sua derivada
-def sigmoide(x):
-    return 1 / (1 + np.exp(-x))
+import numpy as np
 
 def derivada_sigmoide(x):
     return sigmoide(x) * (1 - sigmoide(x))
