@@ -1,7 +1,23 @@
-import numpy as np
+# =============================================================================
+# Experimento: Busca em Grade de Hiperparâmetros — Sigmoide, Pesos Zerados
+# =============================================================================
+# Mesma busca em grade do arquivo mlp_sigmoide_random.py, mas com uma
+# inicialização de pesos diferente: todos os pesos começam com valor 0.01
+# (próximo de zero, mas não exatamente zero para evitar o problema de
+# simetria total que impediria o aprendizado).
+#
+# O objetivo é comparar o desempenho e a velocidade de convergência com
+# a inicialização aleatória. Pesos zerados geralmente convergem pior,
+# pois todos os neurônios da camada escondida recebem o mesmo gradiente
+# e tendem a aprender as mesmas características.
+#
+# Função de ativação: Sigmoide
+# Inicialização dos pesos: Zerada (valor 0.01)
+#
+# Resultado salvo em 'Testes/estatisticas/pesosZeradosSigmoide.npy'
+# =============================================================================
 
-# funcao de ativacao sigmoide e sua derivada
-def sigmoide(x):
+import numpy as np
     return 1 / (1 + np.exp(-x))
 
 def derivada_sigmoide(x):
