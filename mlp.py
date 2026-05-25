@@ -82,13 +82,13 @@ rotulo = np.load("Conjunto de Dados/caracteres-completo/Y_classe.npy")
 acertos_treinamento_total = 0
 erros_treinamento_total = 0
 
-# --- REQUISITO OBRIGATÓRIO: Garantir criação da pasta de saídas ---
+# criação da pasta de saídas
 os.makedirs("saidas", exist_ok=True)
 
 for varx in range(1, 2):
     mlp = MLP(120, 65, 26, 0.01)
 
-    # [REQUISITO OBRIGATÓRIO (ii)]: Salvar os pesos iniciais da rede neural
+    # salvando os pesos iniciais da rede neural
     np.savetxt(f"saidas/pesos_iniciais_v_teste_{varx}.txt", mlp.v, fmt="%.6f")
     np.savetxt(f"saidas/pesos_iniciais_w_teste_{varx}.txt", mlp.w, fmt="%.6f")
 
@@ -102,10 +102,10 @@ for varx in range(1, 2):
     par_erros_treinamento = 1
     erro_aceitavel = 0
     
-    # [REQUISITO OBRIGATÓRIO (iv)]: Lista para persistir o histórico de erros cometidos
+    # lista para persistir o historico de erros cometidos
     historico_erros = []
 
-    # Enquanto os pesos não convergirem (ajustado com .copy() para isolar endereços de memória)
+    # Enquanto os pesos não convergirem 
     while ((not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior))) and i < 10000 and erro_aceitavel != 1): 
         mlp.v_anterior = mlp.v.copy()
         mlp.w_anterior = mlp.w.copy()
@@ -118,18 +118,18 @@ for varx in range(1, 2):
             
         par_erros_treinamento = par_erros_treinamento / (len(caracteristicas)-130) 
 
-        # Armazena o erro médio computado nesta iteração do treinamento
+        # armazena o erro medio computado nesta iteracao do treinamento
         historico_erros.append(par_erros_treinamento)
 
         i += 1
 
         print("Iteracao:", i, "Erro total:", par_erros_treinamento)
 
-        # Critério de Parada Antecipada implementado pelo grupo
+        # criterio de Parada Antecipada 
         if i >= 300 and par_erros_treinamento < 0.05:
             erro_aceitavel = 1
 
-    # Finalizado o treino, extrai os acertos no conjunto de treino
+    # finalizado o treino, extrai os acertos no conjunto de treino
     for j in range(len(caracteristicas)-130):
         resultado = mlp.feedforward(caracteristicas[j])
         if np.argmax(resultado) == np.argmax(rotulo[j]):
@@ -143,7 +143,7 @@ for varx in range(1, 2):
 
     for j in range(len(caracteristicas)-130, len(caracteristicas)):
         resultado = mlp.feedforward(caracteristicas[j])
-        saidas_brutas_teste.append(resultado)  # Coleta as saídas brutas da rede de teste
+        saidas_brutas_teste.append(resultado)  # coleta as sadas brutas da rede de teste
         
         classe_predita = np.argmax(resultado)
         classe_real = np.argmax(rotulo[j])
@@ -170,11 +170,11 @@ for varx in range(1, 2):
     erros_treinamento_total += erros_treinamento
 
     # =====================================================================
-    # EXPORTAÇÃO DOS ARQUIVOS DE TEXTO REQUISITADOS (TXT / LEGÍVEIS)
+    # EXPORTAÇÃO DOS ARQUIVOS DE TEXTO REQUISITADOS (TXT / LEGIVEIA)
     # =====================================================================
     print(f"\n[INFO] Gravando relatorios do experimento {varx} em disco...")
 
-    # (i) Arquivo de hiperparâmetros finais e de inicialização
+    # arquivo de hiperparametros finais e de inicializacao
     with open(f"saidas/hiperparametros_teste_{varx}.txt", "w") as f:
         f.write("--- Hiperparametros Finais da Arquitetura e Inicializacao ---\n")
         f.write(f"Neuronios de Entrada: {mlp.n_entrada}\n")
@@ -184,17 +184,17 @@ for varx in range(1, 2):
         f.write(f"Total de Iteracoes executadas: {i - 1}\n")
         f.write(f"Parada Antecipada acionada: {'Sim' if erro_aceitavel == 1 else 'Nao'}\n")
 
-    # (iii) Arquivo contendo os pesos finais da rede neural
+    # arquivo contendo os pesos finais da rede neural
     np.savetxt(f"saidas/pesos_finais_v_teste_{varx}.txt", mlp.v, fmt="%.6f")
     np.savetxt(f"saidas/pesos_finais_w_teste_{varx}.txt", mlp.w, fmt="%.6f")
 
-    # (iv) Arquivo contendo o erro cometido pela rede em cada iteração
+    # arquivo contendo o erro cometido pela rede em cada iteracao
     np.savetxt(f"saidas/historico_erros_teste_{varx}.txt", historico_erros, fmt="%.6f")
 
-    # (v) Arquivo contendo as saídas brutas produzidas para cada dado de teste
+    # arquivo contendo as saidas brutas produzidas para cada dado de teste
     np.savetxt(f"saidas/saidas_produzidas_teste_{varx}.txt", np.array(saidas_brutas_teste), fmt="%.6f")
 
-    # [REQUISITO EXIGIDO PARA O VÍDEO]: Matriz de Confusão salva em formato texto plano
+    # matriz de confusao salva em formato texto plano
     np.savetxt(f"saidas/matriz_confusao_teste_{varx}.txt", matriz_confusao, fmt="%d")
 
 print("\n" + "="*40)
