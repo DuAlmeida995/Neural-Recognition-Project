@@ -5,7 +5,15 @@ def sigmoide(x):
     return 1 / (1 + np.exp(-x))
 
 def derivada_sigmoide(x):
+    # f'(x) = f(x) * (1 - f(x))
     return sigmoide(x) * (1 - sigmoide(x))
+
+def tanh(x):
+    return np.tanh(x)
+
+def derivada_tanh(x_in):
+    # f'(x) = 1 - tanh(x)^2
+    return 1 - np.tanh(x_in)**2
 
 class MLP:
     def __init__(self, n_entrada, n_escondida, n_saida, taxa_aprendizado):
@@ -48,9 +56,9 @@ class MLP:
         # retropropagacao do erro para a camada escondida
         w_sem_bias = self.w[:, 1:] # remove o bias da matriz w para calcular o erro escondido
         erro_escondida = np.dot(self.delta_saida, w_sem_bias)
-        self.delta_escondida = erro_escondida * derivada_sigmoide(self.z)
+        self.delta_escondida = erro_escondida * derivada_sigmoide(self.z_in)
         delta_w = self.alpha * np.outer(self.delta_saida, self.a) # utilizei o np.outer aqui por conta que ele consegue pegar dois vetores e criar uma matriz onde cada posição (i, j) é o resultado de a[i] X b[j]
-        delta_v = self.alpha * np.outer(self.delta_escondida, x)
+        delta_v = self.alpha * np.outer(self.delta_escondida, x_com_bias)
         self.w = self.w + delta_w
         self.v = self.v + delta_v 
 
