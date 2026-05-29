@@ -34,6 +34,7 @@ O código gera:
 
 ## Realizado por
 
+* **André Portela Lino** - 15634885
 * **Eduardo Almeida Cavalcanti de Melo** - 15526004
 * **Júlio Arroio Silva** - 15466241
-* **Nome do Aluno 3** - Nº USP
+* **Nome do Aluno 4** - Nº USP

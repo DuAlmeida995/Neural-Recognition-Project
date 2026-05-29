@@ -296,6 +296,14 @@ for varx in range(1, 2):
     matriz_confusao = np.zeros((26, 26), dtype=int)  # 26 classes = letras A a Z
 
     for j in range(len(caracteristicas)-130, len(caracteristicas)):
+
+        # Variações autorais no conjunto de teste
+        # - X.npy       → shape (N, H, W): N imagens de altura H e largura W
+        # - Após o reshape: shape (N, 120) — cada linha é o vetor de 120 pixels de uma imagem
+        teste_autoralX = np.load("Conjunto de Dados/caracteres-completo/X_autoral.npy")
+        teste_autoral = teste_autoralX.reshape(teste_autoralX.shape[0], -1)
+        
+        #resultado = mlp.feedforward(teste_autoral[j])
         resultado = mlp.feedforward(caracteristicas[j])
         saidas_brutas_teste.append(resultado)  # guarda a saída bruta (antes do argmax)
 
