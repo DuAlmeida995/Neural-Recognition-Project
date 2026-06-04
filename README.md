@@ -1,8 +1,8 @@
 # Neural-Recognition-Project
 
-Este repositório contém o desenvolvimento e implementação manual de uma rede **Multilayer Perceptron (MLP)** e na aplicação de uma **Convolutional Neural Network (CNN)**.
+Este repositório contém o desenvolvimento e implementação manual de uma rede **Multilayer Perceptron (MLP)**
 
-## 1. Multilayer Perceptron (MLP)
+## Multilayer Perceptron (MLP)
 
 Implementação manual da arquitetura **Feedforward** com algoritmo **Backpropagation** (Gradiente Descendente).
 
