@@ -1,3 +1,21 @@
+# =============================================================================
+# Experimento: Variação do Número de Épocas — Sigmoide, 70 Neurônios, Série 1
+# =============================================================================
+# Testa como a acuíacia da MLP varia conforme aumentamos o limite máximo de
+# épocas de treinamento. Ajuda a identificar a partir de quantas épocas a rede
+# já apresenta bom desempenho (ponto ótimo antes do overfitting).
+#
+# Parâmetros fixos:
+#   - Função de ativação: Sigmoide
+#   - Camada escondida: 70 neurônios
+#   - Taxa de aprendizado (α): 0.1
+#   - Inicialização dos pesos: Aleatória
+# Parâmetro variado:
+#   - Limite de épocas: 1000, 2000, ..., 9000 (9 configurações)
+#
+# Resultado salvo em 'Testes/estatisticas/mlp_sig_rand_1_70.npy'
+# =============================================================================
+
 import numpy as np
 
 # funcao de ativacao sigmoide e sua derivada

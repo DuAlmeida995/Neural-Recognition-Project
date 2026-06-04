@@ -1,8 +1,18 @@
-import numpy as np
+# =============================================================================
+# Experimento: Busca em Grade de Hiperparâmetros — Tanh, Pesos Zerados
+# =============================================================================
+# Idêntico ao mlp_sigmoide_zero.py, mas usando a função de ativação tanh.
+# Combina os piores aspectos de cada experimento individual para observar
+# o impacto da inicialização próxima de zero combinada com a tanh.
+#
+# Função de ativação: Tanh
+# Inicialização dos pesos: Zerada (valor 0.01)
+# Parâmetros variados: α (0.1–0.9) × camada escondida (10–100, passo 10)
+#
+# Resultado salvo em 'Testes/estatisticas/pesosZeradosTanh.npy'
+# =============================================================================
 
-# funcao de ativacao sigmoide e sua derivada
-def sigmoide(x):
-    return 1 / (1 + np.exp(-x))
+import numpy as np
 
 def derivada_sigmoide(x):
     return sigmoide(x) * (1 - sigmoide(x))

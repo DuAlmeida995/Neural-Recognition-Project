@@ -1,3 +1,19 @@
+# =============================================================================
+# Experimento: Variação do Número de Épocas — Sigmoide, 70 Neurônios, Série 2
+# =============================================================================
+# Mesma configuração da Série 1, mas com uma faixa diferente de épocas.
+# Comparar as duas séries permite avaliar a estabilidade dos resultados
+# (o quanto a inicialização aleatória dos pesos influencia o resultado final).
+#
+# Parâmetros fixos:
+#   - Função de ativação: Sigmoide
+#   - Camada escondida: 70 neurônios
+#   - Taxa de aprendizado (α): 0.1
+#   - Inicialização dos pesos: Aleatória
+#
+# Resultado salvo em 'Testes/estatisticas/mlp_sig_rand_2_70.npy'
+# =============================================================================
+
 import numpy as np
 
 # funcao de ativacao sigmoide e sua derivada
