@@ -1,18 +1,6 @@
-# =============================================================================
-# Experimento: Variação do Número de Épocas — Tanh, 70 Neurônios, Série 2
-# =============================================================================
-# Segunda rodada do experimento mlp_tanh_random_1_70.py, com inicialização
-# aleatória diferente. Comparar as duas séries permite avaliar se os resultados
-# são estáveis independente da seed de inicialização dos pesos.
-#
-# Parâmetros fixos:
-#   - Função de ativação: Tanh
-#   - Camada escondida: 70 neurônios
-#   - Taxa de aprendizado (α): 0.1
-#   - Inicialização dos pesos: Aleatória
-#
-# Resultado salvo em 'Testes/estatisticas/mlp_tanh_random_2_70.npy'
-# =============================================================================
+# varia limite de épocas (1000-9000): tanh, escondida=70, α=0.1, série 2
+# compara com série 1 pra ver estabilidade entre seeds
+# salva em Testes/estatisticas/mlp_tanh_random_2_70.npy
 
 import numpy as np
 
@@ -165,7 +153,7 @@ for epoca in range(1, 10):
 
     estatisticas[epoca-1] = [epoca*1000, acuracia]
 
-np.save("Testes/estatisticas/mlp_tanh_random_2_70.npy", estatisticas) # salva as estatisticas em um arquivo numpy para poder analisar depois
+np.save("Testes/estatisticas/mlp_tanh_random_2_70.npy", estatisticas)
 
 print("MLP com taxa de aprendizado 0.2")
 print("Melhor acerto:", melhor_acerto)

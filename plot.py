@@ -1,29 +1,10 @@
-# =============================================================================
-# Visualização dos Resultados dos Experimentos com a MLP
-# =============================================================================
-# Este script carrega os dados de estatísticas gravados pelos scripts de teste
-# e gera gráficos interativos para analisar o impacto dos hiperparâmetros
-# sobre a acuíral da rede no conjunto de teste.
-#
-# Experimentos disponíveis para visualização:
-#   - Variação de α (taxa de aprendizado) e tamanho da camada escondida
-#     com pesos inicializados aleatoriamente ou zerados (sigmoide ou tanh)
-#   - Variação do número de épocas com camada escondida fixada em 70 neurônios
-# =============================================================================
+# plota resultados dos experimentos — α, camada escondida e épocas
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-# -----------------------------------------------------------------------------
-# Carregamento e filtragem dos dados de estatísticas
-# -----------------------------------------------------------------------------
-# Cada arquivo .npy contém os resultados de múltiplas rodadas de treinamento
-# variando hiperparâmetros. Usamos np.delete para remover linhas onde a
-# acuíacia é zero ou muito baixa (experimentos que não convergiram),
-# para que esses outliers não distorcem as escalas dos gráficos.
-
-# Experimentos por épocas: camada escondida=70 neurônios, pesos aleatórios
-# Colunas [0]=número de épocas, [1]=acuíacia — remove linhas com acuíacia=0
+# remove experimentos que não convergiram (acuracia=0) pra não distorcer os gráficos
+# épocas: escondida=70, pesos aleatórios
 dataSigRand170 = np.delete(np.load("Testes/estatisticas/mlp_sig_rand_1_70.npy"),np.load("Testes/estatisticas/mlp_sig_rand_1_70.npy")[:, 1] == 0, axis=0)
 dataSigRand270 = np.delete(np.load("Testes/estatisticas/mlp_sig_rand_2_70.npy"),np.load("Testes/estatisticas/mlp_sig_rand_2_70.npy")[:, 1] == 0, axis=0)
 dataTanhRand170 = np.delete(np.load("Testes/estatisticas/mlp_tanh_random_1_70.npy"),np.load("Testes/estatisticas/mlp_tanh_random_1_70.npy")[:, 1] == 0, axis=0)
@@ -37,12 +18,7 @@ dataZeradosTanh = np.delete(np.load("Testes/estatisticas/pesosZeradosTanh.npy"),
 dataZeradosSigmoide = np.delete(np.load("Testes/estatisticas/pesosZeradosSigmoide.npy"),np.load("Testes/estatisticas/pesosZeradosSigmoide.npy")[:, 7] <= 0.01, axis=0)
 
 
-# -----------------------------------------------------------------------------
-# Extração das colunas de interesse de cada conjunto de dados
-# -----------------------------------------------------------------------------
-# Layout das colunas nos arquivos de busca em grade:
-#   [0]=Alpha, [1]=tam. camada escondida, [2]=acertos totais, [3]=erros totais,
-#   [4]=acuíacia total, [5]=acertos teste, [6]=erros teste, [7]=acuíacia teste
+# cols: [0]=alpha, [1]=escondida, [2]=acertos, [3]=erros, [4]=acur. total, [5]=acertos teste, [6]=erros teste, [7]=acur. teste
 alfaAleatoriosTanh = dataAleatoriosTanh[:, 0]
 camadaEscondidaAleatoriosTanh = dataAleatoriosTanh[:, 1]
 acuraciaTreinamentoAleatoriosTanh = dataAleatoriosTanh[:, 7]
@@ -59,9 +35,7 @@ alfaZeradosSigmoide = dataZeradosSigmoide[:, 0]
 camadaEscondidaZeradosSigmoide = dataZeradosSigmoide[:, 1]
 acuraciaTreinamentoZeradosSigmoide = dataZeradosSigmoide[:, 7]
 
-# -----------------------------------------------------------------------------
-# Menu interativo: o usuário escolhe o que deseja visualizar
-# -----------------------------------------------------------------------------
+# menu: uusário escolhe o que plotar
 epocaOuAlfaCamada = input("Digite o que deseja plotar (alfa/camada escondida[0] ou epoca[1]): ")
 
 if epocaOuAlfaCamada == '0':
@@ -73,11 +47,7 @@ if epocaOuAlfaCamada == '0':
     operacaoGrafica = input("Digite a operação gráfica (alfa[0], camada escondida[1] ou ambos[2]): ")
 
     if operacaoGrafica == '2':
-        # Visualização completa: dois gráficos 2D (Alpha vs Acuíacia e
-        # Camada Escondida vs Acuíacia) e um gráfico 3D que combina as duas
-        # variáveis, formando uma superfície de desempenho da rede.
-        # O mapa de cores (viridis) facilita identificar visualmente as
-        # combinações de hiperparâmetros com maior acuíacia.
+        # 2D + 3D: superfície de desempenho α × camada escondida
         fig = plt.figure()
 
         if funcaoAtivacao == '0' and formatoPesos == '0':
@@ -166,19 +136,14 @@ if epocaOuAlfaCamada == '0':
 
         array = np.array([y, z])
 else:
-    # Modo de análise por número de épocas: mostra como a acuíacia evolui
-    # conforme aumentamos o limite máximo de épocas de treinamento,
-    # com a camada escondida fixada em 70 neurônios e α = 0.1.
-    # Isso ajuda a encontrar o ponto ótimo de treinamento: poucas épocas
-    # = underfitting; muitas épocas = risco de overfitting.
+    # modo épocas: vê a partir de quantas épocas a acurácia estabiliza
     funcaoAtivacao = input("Digite a função de ativação (tanh[0] ou sigmoide[1]): ")
     if funcaoAtivacao == '0':
         fig = plt.figure()
 
-        # Cada subplot corresponde a uma execução com seeds diferentes,
-        # permitindo verificar a estabilidade dos resultados (variação por acaso)
+        # dois subplots = duas seeds — checa estabilidade dos resultados
         x1 = dataTanhRand170[:, 0]   # número de épocas
-        y1 = dataTanhRand170[:, 1]   # acuíacia correspondente
+        y1 = dataTanhRand170[:, 1]   # acurácia correspondente
 
         ax = fig.add_subplot(2,2,1)
         ax.scatter(x1, y1, c=y1, cmap='viridis')
@@ -229,7 +194,6 @@ else:
 
 
 array = array.transpose()
-print(array)  # imprime os dados plotados no formato (n_experimentos, 2)
+print(array)
 
-# Exibe todos os gráficos gerados na janela do matplotlib
 plt.show()

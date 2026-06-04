@@ -1,20 +1,5 @@
-# =============================================================================
-# Experimento: Variação do Número de Épocas — Tanh, 70 Neurônios, Série 1
-# =============================================================================
-# Idêntico ao mlp_sigmoide_random_1_70.py, mas usando a função de ativação
-# tanh. Permite comparar diretamente se a tanh converge mais rapidamente
-# (em menos épocas) do que a sigmoide para este conjunto de dados.
-#
-# Parâmetros fixos:
-#   - Função de ativação: Tanh
-#   - Camada escondida: 70 neurônios
-#   - Taxa de aprendizado (α): 0.1
-#   - Inicialização dos pesos: Aleatória
-# Parâmetro variado:
-#   - Limite de épocas: 1000, 2000, ..., 9000
-#
-# Resultado salvo em 'Testes/estatisticas/mlp_tanh_random_1_70.npy'
-# =============================================================================
+# varia limite de épocas (1000-9000): tanh, escondida=70, α=0.1, série 1
+# salva em Testes/estatisticas/mlp_tanh_random_1_70.npy
 
 import numpy as np
 
@@ -171,7 +156,7 @@ for epoca in range(1, 10):
 
     estatisticas[epoca-1] = [epoca*1000, acuracia]
 
-np.save("Testes/estatisticas/mlp_tanh_random_1_70.npy", estatisticas) # salva as estatisticas em um arquivo numpy para poder analisar depois
+np.save("Testes/estatisticas/mlp_tanh_random_1_70.npy", estatisticas)
 
 print("MLP com taxa de aprendizado 0.1")
 print("Melhor acerto:", melhor_acerto)

@@ -1,19 +1,5 @@
-# =============================================================================
-# Experimento: Busca em Grade de Hiperparâmetros — Sigmoide, Pesos Aleatórios
-# =============================================================================
-# Este script realiza uma busca em grade (grid search) para encontrar a
-# melhor combinação de hiperparâmetros para a MLP:
-#
-#   - Taxa de aprendizado (α): valores de 0.1 a 0.9 (9 opções)
-#   - Tamanho da camada escondida: de 10 a 100 neurônios (passo 10 = 10 opções)
-#   Total: 9 × 10 = 90 combinações testadas
-#
-# Função de ativação: Sigmoide
-# Inicialização dos pesos: Aleatória (uniforme entre -1 e 1)
-#
-# Os resultados são salvos em 'Testes/estatisticas/pesosAleatoriosSigmoide.npy'
-# para visualização posterior no plot.py.
-# =============================================================================
+# grid search: sigmoide, pesos aleatórios — α (0.1-0.9) × escondida (10-100), 90 combinações
+# salva em Testes/estatisticas/pesosAleatoriosSigmoide.npy
 
 import numpy as np
 
@@ -32,9 +18,9 @@ class MLP:
         self.alpha = taxa_aprendizado
 
         # peso entre camada de entrada e camada escondida (matriz v)
-        self.v = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1)) # o +1 em v e w se deve por conta do bias
-        self.v_anterior = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1)) # o +1 em v e w se deve por conta do bias
-        # peso entre camada escondida e camada de saída (matriz w)
+        self.v = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1)) # +1 = bias
+        self.v_anterior = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1))
+        # peso entrada escondida → saída (matriz w)
         self.w = np.random.uniform(-1, 1, (self.n_saida, self.n_escondida + 1)) 
         self.w_anterior = np.random.uniform(-1, 1, (self.n_saida, self.n_escondida + 1)) 
 
@@ -169,7 +155,7 @@ for alfa in range(1, 10):
             melhor_alfa = alfa
             melhor_camada_escondida = camada_escondida
 
-np.save("Testes/estatisticas/pesosAleatoriosSigmoide.npy", estatisticas) # salva as estatisticas em um arquivo numpy para poder analisar depois
+np.save("Testes/estatisticas/pesosAleatoriosSigmoide.npy", estatisticas)
 
 print("MLP com função de ativação sigmoide e pesos aleatórios")
 print("Melhor acerto:", melhor_acerto)

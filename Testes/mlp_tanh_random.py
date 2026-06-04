@@ -1,20 +1,6 @@
-# =============================================================================
-# Experimento: Busca em Grade de Hiperparâmetros — Tanh, Pesos Aleatórios
-# =============================================================================
-# Idêntico ao mlp_sigmoide_random.py, mas usando a função de ativação tanh
-# no lugar da sigmoide.
-#
-# A tanh mapeia para o intervalo (-1, 1) em vez de (0, 1). Por ser centrada
-# em zero, tende a produzir gradientes maiores e pode convergir mais rápido
-# em alguns casos. Comparar com a versão sigmoide permite avaliar qual
-# função de ativação é mais adequada para este problema.
-#
-# Função de ativação: Tanh
-# Inicialização dos pesos: Aleatória (uniforme entre -1 e 1)
-# Parâmetros variados: α (0.1–0.9) × camada escondida (10–100, passo 10)
-#
-# Resultado salvo em 'Testes/estatisticas/pesosAleatoriosTanh.npy'
-# =============================================================================
+# grid search: tanh, pesos aleatórios — α (0.1-0.9) × escondida (10-100), 90 combinações
+# tanh: range (-1,1) centrada em zero, tende a convergir mais rápido que sigmoide
+# salva em Testes/estatisticas/pesosAleatoriosTanh.npy
 
 import numpy as np
 
@@ -172,7 +158,7 @@ for alfa in range(1, 10):
             melhor_alfa = alfa
             melhor_camada_escondida = camada_escondida
 
-np.save("Testes/estatisticas/pesosAleatoriosTanh.npy", estatisticas) # salva as estatisticas em um arquivo numpy para poder analisar depois
+np.save("Testes/estatisticas/pesosAleatoriosTanh.npy", estatisticas)
 
 print("MLP com função de ativação tanh e pesos aleatórios")
 print("Melhor acerto:", melhor_acerto)

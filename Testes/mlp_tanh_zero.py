@@ -1,16 +1,5 @@
-# =============================================================================
-# Experimento: Busca em Grade de Hiperparâmetros — Tanh, Pesos Zerados
-# =============================================================================
-# Idêntico ao mlp_sigmoide_zero.py, mas usando a função de ativação tanh.
-# Combina os piores aspectos de cada experimento individual para observar
-# o impacto da inicialização próxima de zero combinada com a tanh.
-#
-# Função de ativação: Tanh
-# Inicialização dos pesos: Zerada (valor 0.01)
-# Parâmetros variados: α (0.1–0.9) × camada escondida (10–100, passo 10)
-#
-# Resultado salvo em 'Testes/estatisticas/pesosZeradosTanh.npy'
-# =============================================================================
+# grid search: tanh, pesos zerados (0.01) — pior caso esperado de convergência
+# salva em Testes/estatisticas/pesosZeradosTanh.npy
 
 import numpy as np
 
@@ -169,7 +158,7 @@ for alfa in range(1, 10):
             melhor_alfa = alfa
             melhor_camada_escondida = camada_escondida
 
-np.save("Testes/estatisticas/pesosZeradosTanh.npy", estatisticas) # salva as estatisticas em um arquivo numpy para poder analisar depois
+np.save("Testes/estatisticas/pesosZeradosTanh.npy", estatisticas)
 
 print("MLP com função de ativação tanh e pesos zerados")
 print("Melhor acerto:", melhor_acerto)
