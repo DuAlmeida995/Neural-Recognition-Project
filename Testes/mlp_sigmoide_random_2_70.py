@@ -1,18 +1,6 @@
-# =============================================================================
-# Experimento: Variação do Número de Épocas — Sigmoide, 70 Neurônios, Série 2
-# =============================================================================
-# Mesma configuração da Série 1, mas com uma faixa diferente de épocas.
-# Comparar as duas séries permite avaliar a estabilidade dos resultados
-# (o quanto a inicialização aleatória dos pesos influencia o resultado final).
-#
-# Parâmetros fixos:
-#   - Função de ativação: Sigmoide
-#   - Camada escondida: 70 neurônios
-#   - Taxa de aprendizado (α): 0.1
-#   - Inicialização dos pesos: Aleatória
-#
-# Resultado salvo em 'Testes/estatisticas/mlp_sig_rand_2_70.npy'
-# =============================================================================
+# varia limite de épocas (1000-9000): sigmoide, escondida=70, α=0.1, série 2
+# compara com série 1 pra ver estabilidade entre seeds
+# salva em Testes/estatisticas/mlp_sig_rand_2_70.npy
 
 import numpy as np
 
@@ -163,7 +151,7 @@ for epoca in range(1, 10):
 
     estatisticas[epoca-1] = [epoca*1000, acuracia]
 
-np.save("Testes/estatisticas/mlp_sig_rand_2_70.npy", estatisticas) # salva as estatisticas em um arquivo numpy para poder analisar depois
+np.save("Testes/estatisticas/mlp_sig_rand_2_70.npy", estatisticas)
 
 print("MLP com taxa de aprendizado 0.2")
 print("Melhor acerto:", melhor_acerto)

@@ -10,57 +10,43 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
-# Carrega os dados originais
-# X.npy -> shape (N, H, W): N imagens de altura H e largura W
+# carrega e copia os dados originais
 X = np.load("Conjunto de Dados/caracteres-completo/X.npy")
+X_autoral = X.copy()  # copia pra não sobrescrever o original
 
-# É feita uma cópia para não sobrescrever os dados
-X_autoral = X.copy() 
+fundo = np.max(X)  # valor do background
+traco = np.min(X)  # valor do traço da letra
 
-# Separa o valor que é usado para o fundo e o valor que é usado para o traço da letra na imagem
-fundo = np.max(X)
-traco = np.min(X)
-
-# -----------------------------------------------------------------------------
-# Alteração do Conjunto de Dados para Testes
-# -----------------------------------------------------------------------------
-
-# Início da alteração dos dados do conjunto de teste
 print("Alterando o conjunto de teste...")
-
-# Define o início dos dados de teste (os últimos 130 elementos)
-inicio_teste = len(X) - 130
+inicio_teste = len(X) - 130  # últimos 130 são o conjunto de teste
 
 #------------------------------------------------------
 # Escolhe qual letra será visualizada
-#indice = inicio_teste
-#imagem_letra = X_autoral[indice]
+# indice = inicio_teste
+# imagem_letra = X_autoral[indice]
 
 # Configuração da exibição da imagem
 # O cmap='gray' -> preto e branco
-#plt.imshow(imagem_letra, cmap='gray')
-#plt.title(f"Visualização da letra no índice {indice}")
-#plt.show()
+# plt.imshow(imagem_letra, cmap='gray')
+# plt.title(f"Visualização da letra no índice {indice}")
+# plt.show()
 #------------------------------------------------------
 
 for i in range(inicio_teste, len(X)):
-    # Pega a letra atual (12x10)
-    letra = X_autoral[i] 
+    letra = X_autoral[i]  # imagem 12x10
     
-    # Sorteia qual defeito aplicar nessa letra
-    # - corte: realiza um corte em uma linha aleatória da letra
-    # - chuvisco: inverte 12 pixels aleatórios da imagem
+    # sorteia defeito: corte apaga uma linha inteira, chuvisco inverte 6 pixels
     defeito = random.choice(["corte", "chuvisco"])
     
     if defeito == "corte":
-        linha = random.randint(0, 9)   # Sorteia uma linha de 0 a 11
+        linha = random.randint(0, 9)
         letra[ linha, :] = fundo
         
     elif defeito == "chuvisco":
-        # Sorteia 12 pixels aleatórios na imagem e inverte a cor deles
+        # inverte 6 pixels aleatórios
         for j in range(6):
             linha = random.randint(0, 9)   # Sorteia uma linha de 0 a 9
-            coluna = random.randint(0, 11)   # Sorteia uma coluna de 0 a 12
+            coluna = random.randint(0, 11)   # Sorteia uma coluna de 0 a 11
             
             # Se o pixel pertencer ao traço da letra, ele é apagado
             # Se o pixel pertencer ao fundo da letra, ele é preenchido

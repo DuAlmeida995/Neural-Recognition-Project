@@ -31,10 +31,10 @@ class MLP:
 
     def feedforward(self, x):
         if len(x) == self.n_entrada:
-            x = np.insert(x, 0, 1) # adiciona o bias na entrada, eu tinha usado a funcao append inicialmente, porem como ela inserir no final, troquei pela insert para inserir o bias no inicio
+            x = np.insert(x, 0, 1) # insert no início 
 
         # calculo da camada escondida
-        self.z = np.dot(self.v, x) # usamos dot para calcular matriz x vetor (tambem podemos usa-lo para calcular matriz x matriz ou vetor x vetor)
+        self.z = np.dot(self.v, x) # produto matriz x vetor
         self.a = sigmoide(self.z) 
         self.a = np.insert(self.a, 0, 1) # adiciona o bias na camada escondida
 

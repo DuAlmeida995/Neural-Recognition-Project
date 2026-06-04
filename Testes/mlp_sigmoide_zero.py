@@ -1,23 +1,10 @@
-# =============================================================================
-# Experimento: Busca em Grade de Hiperparâmetros — Sigmoide, Pesos Zerados
-# =============================================================================
-# Mesma busca em grade do arquivo mlp_sigmoide_random.py, mas com uma
-# inicialização de pesos diferente: todos os pesos começam com valor 0.01
-# (próximo de zero, mas não exatamente zero para evitar o problema de
-# simetria total que impediria o aprendizado).
-#
-# O objetivo é comparar o desempenho e a velocidade de convergência com
-# a inicialização aleatória. Pesos zerados geralmente convergem pior,
-# pois todos os neurônios da camada escondida recebem o mesmo gradiente
-# e tendem a aprender as mesmas características.
-#
-# Função de ativação: Sigmoide
-# Inicialização dos pesos: Zerada (valor 0.01)
-#
-# Resultado salvo em 'Testes/estatisticas/pesosZeradosSigmoide.npy'
-# =============================================================================
+# grid search: sigmoide, pesos zerados (0.01) — compara convergência com init aleatória
+# pesos iguais = mesmo gradiente pra todos os neurônios, tende a convergir pior
+# salva em Testes/estatisticas/pesosZeradosSigmoide.npy
 
 import numpy as np
+
+def sigmoide(x):
     return 1 / (1 + np.exp(-x))
 
 def derivada_sigmoide(x):
@@ -31,9 +18,8 @@ class MLP:
         self.alpha = taxa_aprendizado
 
         # peso entre camada de entrada e camada escondida (matriz v)
-        self.v = np.zeros((self.n_escondida, self.n_entrada + 1))+0.01 # o +1 em v e w se deve por conta do bias
-        self.v_anterior = np.zeros((self.n_escondida, self.n_entrada + 1)) # o +1 em v e w se deve por conta do bias
-        # peso entre camada escondida e camada de saída (matriz w)
+        self.v = np.zeros((self.n_escondida, self.n_entrada + 1))+0.01 # +1 = bias; 0.01 evita simetria total
+        self.v_anterior = np.zeros((self.n_escondida, self.n_entrada + 1))
         self.w = np.zeros((self.n_saida, self.n_escondida + 1))+0.01 
         self.w_anterior = np.zeros((self.n_saida, self.n_escondida + 1)) 
 
@@ -168,7 +154,7 @@ for alfa in range(1, 10):
             melhor_alfa = alfa
             melhor_camada_escondida = camada_escondida
 
-np.save("Testes/estatisticas/pesosZeradosSigmoide.npy", estatisticas) # salva as estatisticas em um arquivo numpy para poder analisar depois
+np.save("Testes/estatisticas/pesosZeradosSigmoide.npy", estatisticas)
 
 print("MLP com função de ativação sigmoide e pesos zerados")
 print("Melhor acerto:", melhor_acerto)

@@ -1,20 +1,5 @@
-# =============================================================================
-# Experimento: Variação do Número de Épocas — Sigmoide, 70 Neurônios, Série 1
-# =============================================================================
-# Testa como a acuíacia da MLP varia conforme aumentamos o limite máximo de
-# épocas de treinamento. Ajuda a identificar a partir de quantas épocas a rede
-# já apresenta bom desempenho (ponto ótimo antes do overfitting).
-#
-# Parâmetros fixos:
-#   - Função de ativação: Sigmoide
-#   - Camada escondida: 70 neurônios
-#   - Taxa de aprendizado (α): 0.1
-#   - Inicialização dos pesos: Aleatória
-# Parâmetro variado:
-#   - Limite de épocas: 1000, 2000, ..., 9000 (9 configurações)
-#
-# Resultado salvo em 'Testes/estatisticas/mlp_sig_rand_1_70.npy'
-# =============================================================================
+# varia limite de épocas (1000-9000): sigmoide, escondida=70, α=0.1, série 1
+# salva em Testes/estatisticas/mlp_sig_rand_1_70.npy
 
 import numpy as np
 
@@ -41,10 +26,10 @@ class MLP:
 
     def feedforward(self, x):
         if len(x) == self.n_entrada:
-            x = np.insert(x, 0, 1) # adiciona o bias na entrada, eu tinha usado a funcao append inicialmente, porem como ela inserir no final, troquei pela insert para inserir o bias no inicio
+            x = np.insert(x, 0, 1) # insert no início — append colocaria no final
 
-        # calculo da camada escondida
-        self.z = np.dot(self.v, x) # usamos dot para calcular matriz x vetor (tambem podemos usa-lo para calcular matriz x matriz ou vetor x vetor)
+        # camada escondida
+        self.z = np.dot(self.v, x) # produto matriz x vetor
         self.a = sigmoide(self.z) 
         self.a = np.insert(self.a, 0, 1) # adiciona o bias na camada escondida
 
@@ -61,10 +46,10 @@ class MLP:
         # calculo do erro na camada de saida
         erro_saida = t - self.y
         self.delta_saida = erro_saida * derivada_sigmoide(self.y_in)
-        self.erro_total = np.sum(erro_saida ** 2)/2 # calculo do erro total para monitorar o aprendizado da rede
+        self.erro_total = np.sum(erro_saida ** 2)/2 # só pra monitorar
 
-        # retropropagacao do erro para a camada escondida
-        w_sem_bias = self.w[:, 1:] # remove o bias da matriz w para calcular o erro escondido
+        # retroprop pra escondida — remove col do bias antes de propagar
+        w_sem_bias = self.w[:, 1:] 
         erro_escondida = np.dot(self.delta_saida, w_sem_bias)
         self.delta_escondida = erro_escondida * derivada_sigmoide(self.z)
         delta_w = self.alpha * np.outer(self.delta_saida, self.a) # utilizei o np.outer aqui por conta que ele consegue pegar dois vetores e criar uma matriz onde cada posição (i, j) é o resultado de a[i] X b[j]
@@ -165,7 +150,7 @@ for epoca in range(1, 10):
 
     estatisticas[epoca-1] = [epoca*1000, acuracia]
 
-np.save("Testes/estatisticas/mlp_sig_rand_1_70.npy", estatisticas) # salva as estatisticas em um arquivo numpy para poder analisar depois
+np.save("Testes/estatisticas/mlp_sig_rand_1_70.npy", estatisticas)
 
 print("MLP com taxa de aprendizado 0.1")
 print("Melhor acerto:", melhor_acerto)
