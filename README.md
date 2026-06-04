@@ -9,13 +9,6 @@ Implementação manual da arquitetura **Feedforward** com algoritmo **Backpropag
 * **Dados:** Portas lógicas (AND, OR, XOR) e Conjunto de Caracteres Completo.
 * **Tecnologias:** Python e NumPy (para operações de matrizes).
 
-### 2. Convolutional Neural Network (CNN)
-
-Implementação via framework especializada para classificação de imagens.
-
-* **Dados:** Fashion MNIST.
-* **Tarefas:** Classificação multiclasse e binária.
-
 ## Estrutura de Arquivos de Saída (MLP)
 
 O código gera:
@@ -27,8 +20,7 @@ O código gera:
 
 ## Vídeos de Demonstração
 
-* **Vídeo 1 (MLP):** Treinamento e teste com Caracteres Completo
-* **Vídeo 2 (CNN):** Explicação da modelagem e resultados do Fashion MNIST
+* **Vídeo MLP:** Treinamento e teste com Caracteres Completo
 
 ## Como Executar
 
