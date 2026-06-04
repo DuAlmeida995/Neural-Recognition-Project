@@ -40,7 +40,7 @@ O algoritmo exporta automaticamente para a pasta `saidas/` os seguintes arquivos
 
 ---
 
-## ⚙️ Como Executar o Projeto
+## Como Executar o Projeto
 
 ### 1. Preparar o Ambiente Virtual (Recomendado)
 
