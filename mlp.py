@@ -1,3 +1,14 @@
+# MEMBROS DO GRUPO:
+# André Portela Lino - 15634885
+# Davi Lima de Oliveira - 15648741
+# Eduardo Almeida Cavalcanti de Melo - 15526004
+# Eric Isin Wang Chou - 15574579
+# Júlio Arroio Silva - 15466241
+# Karina Yang Chen - 15466658
+# TURMA 94
+
+
+
 # MLP para reconhecimento de caracteres A-Z
 # Arquitetura: 120 entrada → 65 escondida → 26 saída
 
