@@ -26,7 +26,7 @@ Implementação matemática pura da arquitetura **Feedforward** com algoritmo de
 
 ## Estrutura de Arquivos do Projeto
 
-* `multilayer_perceptron.py`: Código principal contendo a classe da rede neural, a rotina de treinamento e a avaliação final.
+* `mlp.py`: Código principal contendo a classe da rede neural, a rotina de treinamento e a avaliação final.
 * `testes_autorais.py`: Script responsável por carregar o dataset original e criar uma versão modificada aplicando ruídos customizados (*corte de linha* e *chuvisco*) nas instâncias de teste.
 * `visualizar_matriz.py`: Script utilitário que lê os dados de saída e gera a exibição gráfica da Matriz de Confusão em um mapa de calor.
 
@@ -72,7 +72,7 @@ python testes_autorais.py
 **Passo B: Executar o Treinamento e Teste da MLP**
 Rode o script principal para treinar a rede no dataset de caracteres completo e exportar os relatórios:
 ```bash
-python multilayer_perceptron.py
+python mlp.py
 ```
 
 **Passo C: Plotar o Gráfico da Matriz de Confusão**
