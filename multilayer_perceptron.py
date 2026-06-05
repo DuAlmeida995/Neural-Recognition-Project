@@ -7,6 +7,24 @@
 # Karina Yang Chen - 15466658
 # TURMA 94
 
+# =============================================================================
+# HISTORICO DE DESENVOLVIMENTO: ARQUIVO DE BUSCA EXPLORATORIA DE PARAMETROS
+# =============================================================================
+# NOTA DO GRUPO: este script representa a versao inicial e exploratoria de 
+# testes da nossa arquitetura MLP. Ele foi mantido intencionalmente no 
+# repositório para documentar o procedimento de busca pelos melhores valores 
+# dos parametros (Hyperparameter Tuning), conforme exigido nos criterios de 
+# avaliacao do projeto.
+#
+# Atraves das rodadas executadas por este script (como os testes com 70 neuronios 
+# ocultos e Alpha = 0.2), coletamos as estatísticas de erro e acuracia que 
+# foram posteriormente mapeadas e analisadas visualmente no script 'plot.py'.
+#
+# Apos a conclusao desta busca e analise dos impactos de cada parametro, 
+# os aprendizados foram consolidados na versao final e definitiva do nosso 
+# EP, localizada no arquivo 'mlp.py'.
+# =============================================================================
+
 import numpy as np
 
 # funcao de ativacao sigmoide e sua derivada
