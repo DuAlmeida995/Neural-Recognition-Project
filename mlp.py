@@ -7,8 +7,6 @@
 # Karina Yang Chen - 15466658
 # TURMA 94
 
-
-
 # MLP para reconhecimento de caracteres A-Z
 # Arquitetura: 120 entrada → 65 escondida → 26 saída
 
