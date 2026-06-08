@@ -7,210 +7,209 @@
 # Karina Yang Chen - 15466658
 # TURMA 94
 
+import numpy as np # Biblioteca utilizada para entrada e saida dos conjuntos de dados, além de manipulação de arrays e operações matemáticas
+import os # Biblioteca utilizada para manipulação de arquivos e diretórios (será utilizada apenas para criar um diretório para escrita de parâmetros)
 
-
-# MLP para reconhecimento de caracteres A-Z
-# Arquitetura: 120 entrada → 65 escondida → 26 saída
-
-import numpy as np
-
-# funções de ativação e derivadas — usadas no feedforward e backprop
-
+# Função de ativação usada no feedforward e backpropagation
 def sigmoide(x):
-    return 1 / (1 + np.exp(-x))
+    return 1 / (1 + np.exp(-x)) # Retorna a saida de x após a aplicação da função sigmoide
 
+# Derivada da função sigmoide, usada no backpropagation para calcular os deltas
 def derivada_sigmoide(x):
-    return sigmoide(x) * (1 - sigmoide(x))
+    return sigmoide(x) * (1 - sigmoide(x)) # Retorna a derivada da função sigmoide, que é a função sigmoide multiplicada por (1 - função sigmoide)
 
-def tanh(x):
-    return np.tanh(x)
+# Função que retorna a posição do maior elemento de um vetor
+def argmax(x):
+    for i in range(len(x)): # Itera sobre o vetor x e retorna o índice do maior elemento
+        if x[i] == max(x):
+            return i
+    return -1 # Retorna -1 caso o vetor seja vazio ou não contenha elementos, apenas por segurança
 
-def derivada_tanh(x_in):
-    # f'(x) = 1 - tanh(x)^2
-    return 1 - np.tanh(x_in)**2
-
-# aprox. universal com uma camada escondida — dá conta das 26 letras
+# Classe MLP (Multi-Layer Perceptron) que implementa a rede neural para reconhecimento de caracteres
 class MLP:
+    # Inicializa a rede neural com os parâmetros especificados
     def __init__(self, n_entrada, n_escondida, n_saida, taxa_aprendizado):
-        self.n_entrada = n_entrada
-        self.n_escondida = n_escondida
-        self.n_saida = n_saida
-        self.alpha = taxa_aprendizado    # passo da descida do gradiente
-        self.erro_total = 1              # > 0 pra entrar no while
+        self.n_entrada = n_entrada # Variável para armazenar o número de neurônios na camada de entrada
+        self.n_escondida = n_escondida # Variável para armazenar o número de neurônios na camada escondida
+        self.n_saida = n_saida # Variável para armazenar o número de neurônios na camada de saída
+        self.alpha = taxa_aprendizado # Variável para armazenar a taxa de aprendizado
 
-        # uniforme(-1,1) — pesos iguais travam o aprendizado (simetria)
-        self.v = np.random.uniform(-1/self.n_entrada, 1/self.n_entrada, (self.n_escondida, self.n_entrada + 1))  # +1 = bias
-        self.v_anterior = np.random.uniform(-1/self.n_entrada, 1/self.n_entrada, (self.n_escondida, self.n_entrada + 1))
-        self.w = np.random.uniform(-1/self.n_escondida, 1/self.n_escondida, (self.n_saida, self.n_escondida + 1))    # +1 = bias
-        self.w_anterior = np.random.uniform(-1/self.n_escondida, 1/self.n_escondida, (self.n_saida, self.n_escondida + 1))
-
-        # self.v = np.zeros((self.n_escondida, self.n_entrada + 1))+(1/self.n_entrada)  # +1 = bias
-        # self.v_anterior = np.zeros((self.n_escondida, self.n_entrada + 1))
-        # self.w = np.zeros((self.n_saida, self.n_escondida + 1))+(1/self.n_escondida)
-        # self.w_anterior = np.zeros((self.n_saida, self.n_escondida + 1))
+        # Inicializa os pesos da camada escondida (V) e da camada de saída (W)
+        # Os intervalos de inicialização são baseados no número de neurônios para evitar a saturação das funções de ativação
+        self.v = np.random.uniform(-1/self.n_entrada, 1/self.n_entrada, (self.n_escondida, self.n_entrada + 1))
+        self.w = np.random.uniform(-1/self.n_escondida, 1/self.n_escondida, (self.n_saida, self.n_escondida + 1))
 
 
-    # -------------------------------------------------------------------------
-    # Propagação Direta (Feedforward)
-    # -------------------------------------------------------------------------
-    # O sinal percorre a rede da entrada para a saída, camada por camada.
-    # Para cada neurônio: calcula-se a combinação linear de entradas e
-    # pesos e aplica-se a função de ativação para obter a saída do neurônio.
-    def feedforward(self, x, t):
-        # BIAS no início do vetor de entrada (valor fixo 1) - utilizado o insert para colocar no início
+    # Função de propagação direta (feedforward) que calcula a saída da rede neural para uma dada entrada e rótulo
+    def feedforward(self, x, t): # x é o vetor de entrada e t é o vetor de rótulo (target)
+        # Adiciona o bias no início do vetor de entrada (valor fixo 1)
         if len(x) == self.n_entrada:
-            x = np.insert(x, 0, 1)
+            x = np.insert(x, 0, 1) # A função insert apenas insere o valor 1 ao início do vetor de entrada
 
-        # Camada escondida 
-        # cada linha de V (pesos de um neurônio) multiplica o vetor x e soma os resultados → um único valor.
-        self.z = np.dot(self.v, x)
-        self.a = sigmoide(self.z)  # guardamos pra reusar no backprop
-        self.a = np.insert(self.a, 0, 1)  # bias da escondida
+        # Camada escondida (z_in)
+        self.z_in = np.dot(self.v, x) # Cada linha de v (pesos de um neurônio da camada escondida) multiplica o vetor de entrada x, a soma dessas multiplicações resulta na entrada da camada escondida (z_in) (produto escalar entre os pesos e as entradas)
+        self.z = sigmoide(self.z_in)  # Aplica a função de ativação sigmoide para obter a saída da camada escondida
+        self.z = np.insert(self.z, 0, 1)  # Adiciona o bias na saida da camada escondida
 
-        # camada de saída — y_in guardado pro backprop
-        self.y_in = np.dot(self.w, self.a)
-        self.y = sigmoide(self.y_in)
+        # Camada de saída (y_in)
+        self.y_in = np.dot(self.w, self.z) # Cada linha de w (pesos de um neurônio da camada de saída) multiplica o vetor de saída da camada escondida z, a soma dessas multiplicações resulta na entrada da camada de saída (y_in) (produto escalar entre os pesos e a camada escondida)
+        self.y = sigmoide(self.y_in) # Aplica a função de ativação sigmoide para obter a saída da camada de saída
 
-        # delta da saída — regra delta
-        erro_saida = t - self.y
-        self.delta_saida = erro_saida * derivada_sigmoide(self.y_in)
-        # self.delta_saida = erro_saida * derivada_tanh(self.y_in)  # versão com tanh
-        self.erro_total = np.sum(erro_saida * erro_saida) / 2  # só pra monitorar
-
+        # Calcula o erro da saída em relação ao rótulo (target) e o delta de saída para o backpropagation
+        self.erro_saida = (t - self.y) # O erro é a diferença entre o vetor de rótulo (target) e a saída da rede neural
+        self.delta_saida = self.erro_saida * derivada_sigmoide(self.y_in) # O delta de saída é o erro multiplicado pela derivada da função de ativação aplicada à entrada da camada de saída (y_in)
+        
+        # Retorna a saída da camada de saída (após a aplicação do argmax e conversão para one-hot encoding)
         return self.y
     
+    # Função de retropropagação (backpropagation) que atualiza os pesos da rede neural com base no erro calculado na função de feedforward
     def backpropagation(self, x):
+        # Adiciona o bias no início do vetor de entrada
         if len(x) == self.n_entrada:
-            x = np.insert(x, 0, 1)  # bias na entrada, igual ao feedforward
+            x = np.insert(x, 0, 1) # A função insert apenas insere o valor 1 ao início do vetor de entrada
 
-        # retroprop pra escondida — remove col do bias antes de propagar
-        w_sem_bias = self.w[:, 1:]
-        erro_escondida = np.dot(self.delta_saida, w_sem_bias)
-        self.delta_escondida = erro_escondida * derivada_sigmoide(self.z)
+        # Retropropagação pra camada escondida
+        w_sem_bias = self.w[:, 1:] # Remove coluna do bias antes de propagar
+        erro_escondida = np.dot(self.delta_saida, w_sem_bias) # O valor de erro da camada escondida é definido como o produto escalar entre o delta de saída e os pesos da camada de saída (sem o bias)
+        self.delta_escondida = erro_escondida * derivada_sigmoide(self.z_in) # O delta de saída é definido como o erro da camada escondida multiplicado pela derivada da função de ativação aplicada à entrada da camada escondida (z_in)
 
-        # outer: cada pos (i,j) = delta[i] * entrada[j]
-        delta_w = self.alpha * np.outer(self.delta_saida, self.a)
-        delta_v = self.alpha * np.outer(self.delta_escondida, x)
+        # Cálculo do termo de correção dos pesos
+        delta_w = self.alpha * np.outer(self.delta_saida, self.z) # O delta de atualização dos pesos da camada de saída é calculado como a taxa de aprendizado multiplicada pelo produto vetorial entre o delta de saída e a saída da camada escondida (z)
+        delta_v = self.alpha * np.outer(self.delta_escondida, x) # O delta de atualização dos pesos da camada escondida é calculado como a taxa de aprendizado multiplicada pelo produto vetorial entre o delta da camada escondida e a entrada (x)
 
-        # Aplica as correções: w_novo = w_antigo + ΔW
+        # Aplica as correções dos pesos os somando com os termos de correção calculados
         self.w = self.w + delta_w
         self.v = self.v + delta_v
 
-    def recuperar_pesos(self, melhorv, melhorw):
-        self.v = melhorv
-        self.w = melhorw
+    # Função para recuperar os pesos que obtiveram melhor acurácia durante as validações (útil em casos de parada antecipada, onde os pesos finais podem não ser os melhores)
+    def recuperar_pesos(self, melhor_v, melhor_w):
+        self.v = melhor_v
+        self.w = melhor_w
 
 
 
-import os
+# Carrega dados e achata imagens (N, H, W) → (N, 120)
+caracteristicas_duas_dimensoes = np.load("Conjunto de Dados/caracteres-completo/X.npy") # Carrega o conjunto de dados de características a partir do arquivo X.npy, que contém os valores em formato de matriz 12x10
+caracteristicas = caracteristicas_duas_dimensoes.reshape(caracteristicas_duas_dimensoes.shape[0], -1) # Transforma a matriz 12x10 em um vetor de 120 características para cada exemplo
+rotulo = np.load("Conjunto de Dados/caracteres-completo/Y_classe.npy") # Carrega o conjunto de dados de rótulos a partir do arquivo Y_classe.npy
+teste_autoralX = np.load("Conjunto de Dados/caracteres-completo/X_autoral.npy") # Carrega o conjunto de dados de teste autoral a partir do arquivo X_autoral.npy
 
-# carrega dados e achata imagens (N, H, W) → (N, 120)
-caracteristicasDuasDimensoes = np.load("Conjunto de Dados/caracteres-completo/X.npy")
-caracteristicas = caracteristicasDuasDimensoes.reshape(caracteristicasDuasDimensoes.shape[0], -1)
+# Divide os dados em conjuntos de treinamento, validação e teste
+caracteristicas_treinamento = caracteristicas[0:858] # Os primeiros 858 exemplos são usados para treinamento (33 conjuntos de cada letra)
+caracteristicas_validacao = caracteristicas[858:1196] # Os próximos 338 exemplos são usados para validação (13 conjuntos de cada letra)
+caracteristicas_teste = caracteristicas[1196:1326] # Os últimos 130 exemplos são usados para teste (5 conjuntos de cada letra)
 
-caracteristicasTreinamento = caracteristicas[0:858]
-caracteristicasValidacao = caracteristicas[858:858+338]
-caracteristicasTeste = caracteristicas[858+338:858+338+130]
+# Divide os rótulos em conjuntos de treinamento, validação e teste
+rotulo_treinamento = rotulo[0:858] # Os primeiros 858 exemplos são usados para treinamento (33 conjuntos de cada letra)
+rotulo_validacao = rotulo[858:1196] # Os próximos 338 exemplos são usados para validação (13 conjuntos de cada letra)
+rotulo_teste = rotulo[1196:1326] # Os últimos 130 exemplos são usados para teste (5 conjuntos de cada letra)
 
 
-rotulo = np.load("Conjunto de Dados/caracteres-completo/Y_classe.npy")
+# Cria pasta de saidas se não existir
+os.makedirs("saidas", exist_ok=True)
 
-rotuloTreinamento = rotulo[0:858]
-rotuloValidacao = rotulo[858:858+338]
-rotuloTeste = rotulo[858+338:858+338+130]
 
-os.makedirs("saidas", exist_ok=True)  # cria pasta se não existir
+# Hiperparâmetros da arquitetura e treinamento
+camada_escondida = 60 # Define o número de neurônios presentes na camada escondida
+taxa_aprendizado = 0.05 # Define a taxa de aprendizado do MLP
+paciencia = 20 # Define o número de épocas de paciência para a parada antecipada (número de épocas consecutivas sem melhoria significativa no erro de validação antes de parar o treinamento)
 
-camada_escondida = 120
-taxa_aprendizado = 0.07
-paciencia = 20  # épocas de paciência pra parada antecipada
-
+# Inicializa o MLP com os parâmetros definidos
 mlp = MLP(120, camada_escondida, 26, taxa_aprendizado)
 
-# salva pesos iniciais pra comparar depois
-np.savetxt(f"saidas/pesos_iniciais_v_teste.txt", mlp.v, fmt="%.6f")
-np.savetxt(f"saidas/pesos_iniciais_w_teste.txt", mlp.w, fmt="%.6f")
+# Armazena os primeiros pesos (gerados aleatoriamente) como os melhores pesos
+melhor_v = mlp.v.copy()
+melhor_w = mlp.w.copy()
 
-acertos_treinamento = 0
-erros_treinamento = 0
+# Salva os valores dos pesos iniciais
+np.savetxt(f"saidas/pesos_iniciais_v.txt", mlp.v, fmt="%.6f")
+np.savetxt(f"saidas/pesos_iniciais_w.txt", mlp.w, fmt="%.6f")
 
-i = 0
-par_erros_treinamento = 1  # > 0 pra entrar no while
-erro_aceitavel = 0         # flag de parada antecipada
+menor_erro_quadratico_medio = float('inf') # Inicializa o menor erro quadrático médio com infinito para garantir que o primeiro erro calculado seja considerado como o melhor
+erro_quadratico_medio = float('inf')  # Valor utilizado para medição do erro quadrático médio durante o treinamento
 
-melhorV = mlp.v.copy()  # pra armazenar os melhores pesos encontrados
-melhorW = mlp.w.copy()
-melhor_erro = float('inf')  # inicializa com infinito pra garantir que o primeiro erro seja melhor
+parada_antecipada = 0 # Flag de parada antecipada
+epocas_sem_melhora = 0 # Contador de épocas sem melhoria no erro de validação
 
+# Contadores de acertos e erros durante a fase de teste
+acertos_teste = 0
+erros_teste = 0
+
+# Vetor responsável por guardar os erros em cada época
 historico_erros = []
 
-# treina até convergir, atingir 5000 épocas ou parada antecipada
-# últimos 130 exemplos são reservados pra teste
-while (i < 5000 and (not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior))) and erro_aceitavel < paciencia):
-    mlp.v_anterior = mlp.v.copy()
-    mlp.w_anterior = mlp.w.copy()
+i = 0 # Variável para guardar o número de épocas (iterações) durante o treinamento
+while (i < 5000  and not parada_antecipada): # Condições para o fim do treinamento: atingir 5000 épocas ou acionar a parada antecipada
+    i += 1 # Incrementa o número de épocas no começo do loop
 
-    for j in range(len(caracteristicasTreinamento)):
-        mlp.feedforward(caracteristicasTreinamento[j], rotuloTreinamento[j])
-        mlp.backpropagation(caracteristicasTreinamento[j])
+    # Treina a rede neural usando o conjunto de treinamento, realizando o feedforward e backpropagation para cada exemplo
+    for j in range(len(caracteristicas_treinamento)):
+        mlp.feedforward(caracteristicas_treinamento[j], rotulo_treinamento[j])
+        mlp.backpropagation(caracteristicas_treinamento[j])
 
-    # treinamento online: um exemplo por vez
+    # Validação da MLP
+    erro_quadratico_medio = 0 # Começamos zerando o valor do MSE
+    for j in range(len(caracteristicas_validacao)): # Para cada exemplo do conjunto de validação, realizamos o feedforward e somamos o quadrado do erro de saída
+        mlp.feedforward(caracteristicas_validacao[j], rotulo_validacao[j])    
+        erro_quadratico_medio += np.sum(mlp.erro_saida ** 2) 
+    erro_quadratico_medio /= len(caracteristicas_validacao) # Calcula o erro quadrático médio dividindo a soma dos erros quadráticos pelo número de exemplos de validação
 
-    par_erros_treinamento = 0
-    for j in range(len(caracteristicasValidacao)):
-        mlp.feedforward(caracteristicasValidacao[j], rotuloValidacao[j])    
-        par_erros_treinamento += mlp.erro_total
-
-    # erro médio da época
-    par_erros_treinamento = par_erros_treinamento / (len(caracteristicasValidacao))
-    if par_erros_treinamento < melhor_erro:
-        melhor_erro = par_erros_treinamento
-        melhorV = mlp.v.copy()
-        melhorW = mlp.w.copy()
+    # Verifica se o erro quadrático médio atual é o menor erro quadrático médio registrado até agora. Se for, atualiza os melhores pesos e o menor erro quadrático médio
+    if erro_quadratico_medio < menor_erro_quadratico_medio:
+        menor_erro_quadratico_medio = erro_quadratico_medio
+        melhor_v = mlp.v.copy()
+        melhor_w = mlp.w.copy()
 
     # Registra o erro desta época no histórico
-    historico_erros.append(par_erros_treinamento)
+    historico_erros.append(erro_quadratico_medio)
 
-    i += 1
+    # Imprime o número da época e o erro quadrático médio para monitorar o progresso do treinamento
+    print("Iteracao:", i, "Erro total:", erro_quadratico_medio)
 
-    print("Iteracao:", i, "Erro total:", par_erros_treinamento)
+    # Verifica se houve melhoria significativa no erro de validação em relação à época anterior. Se a melhoria for menor que um limiar (0.0001 dividido pela paciência), incrementa o contador de épocas sem melhoria
+    if i > 10 and (historico_erros[-2] - erro_quadratico_medio < 0.0001/paciencia):
+       epocas_sem_melhora += 1
+    else: # Caso contrário, reseta o contador de épocas sem melhoria
+        epocas_sem_melhora = 0
 
-    # parada antecipada: aguarda 300 épocas antes pra rede ter tempo de aprender
-    if i > 10 and (historico_erros[-2] - par_erros_treinamento < 0.0001/paciencia):
-        erro_aceitavel += 1
-    else:
-        erro_aceitavel = 0
+    # Se o número de épocas sem melhoria atingir o valor definido pela paciência, aciona a parada antecipada
+    if epocas_sem_melhora >= paciencia:
+        parada_antecipada = 1
+
+mlp.recuperar_pesos(melhor_v, melhor_w)  # Recupera os melhores pesos encontrados durante o treinamento
 
 
 # avaliação no teste — matriz 26×26: linha=real, coluna=predito
-saidas_brutas_teste = []
-matriz_confusao = np.zeros((26, 26), dtype=int)
-mlp.recuperar_pesos(melhorV, melhorW)  # usa os melhores pesos encontrados durante o treinamento
+saidas_brutas_teste = [] # Vetor para armazenar as saídas brutas da rede neural para cada exemplo do conjunto de teste
+matriz_confusao = np.zeros((26, 26), dtype=int) # Matriz de confusão para avaliar o desempenho da rede neural no conjunto de teste, onde as linhas representam as classes reais e as colunas representam as classes preditas
 
-for j in range(len(caracteristicasTeste)):
-    # troca por teste_autoral[j] pra usar os dados autorais modificados
-    teste_autoralX = np.load("Conjunto de Dados/caracteres-completo/X_autoral.npy")
-    
-    #resultado = mlp.feedforward(teste_autoral[j])
-    resultado = mlp.feedforward(caracteristicasTeste[j], rotuloTeste[j])
-    saidas_brutas_teste.append(resultado)
+# Loop que itera o conjunto de testes
+for j in range(len(caracteristicas_teste)):
 
-    classe_predita = np.argmax(resultado)
-    classe_real = np.argmax(rotuloTeste[j])
-    matriz_confusao[classe_real][classe_predita] += 1
+    resultado = mlp.feedforward(caracteristicas_teste[j], rotulo_teste[j]) # Realiza o feedforward para o exemplo de teste atual e armazena a saída bruta (antes da aplicação do argmax)
+    saidas_brutas_teste.append(resultado) # Armazena a saída bruta da rede neural para o exemplo de teste atual no vetor de saídas brutas
 
+    # Calcula a classe predita usando argmax
+    classe_predita = argmax(resultado)
+    classe_real = argmax(rotulo_teste[j])
+
+    matriz_confusao[classe_real][classe_predita] += 1 # Atualiza a matriz de confusão incrementando a contagem na posição correspondente à classe real e classe predita
+
+    # Verifica se a classe predita é igual à classe real para contar acertos e erros no teste
     if classe_predita == classe_real:
-        acertos_treinamento += 1
+        acertos_teste += 1
     else:
-        erros_treinamento += 1
+        erros_teste += 1
 
+# Imprime os resultados do teste
 print("Resultado do teste: ")
-print("Acertos no treinamento:", acertos_treinamento)
-print("Erros no treinamento:", erros_treinamento)
-print("Acurácia no treinamento:", acertos_treinamento / (acertos_treinamento + erros_treinamento))
+print("Acertos no teste:", acertos_teste)
+print("Erros no teste:", erros_teste)
+print("Acurácia no teste:", acertos_teste / (acertos_teste + erros_teste))
 print("Iterações: ", i)
 
-# salva todos os artefatos em disco
+
+# Salva todos os artefatos em disco
 print(f"\n[INFO] Gravando relatorios do experimento em disco...")
 
 with open(f"saidas/hiperparametros_teste.txt", "w") as f:
@@ -220,13 +219,13 @@ with open(f"saidas/hiperparametros_teste.txt", "w") as f:
     f.write(f"Neuronios de Saida: {mlp.n_saida}\n")
     f.write(f"Taxa de Aprendizado (Alpha): {mlp.alpha}\n")
     f.write(f"Total de Iteracoes executadas: {i}\n")
-    f.write(f"Parada Antecipada acionada: {'Sim' if erro_aceitavel >= paciencia else 'Nao'}\n")
+    f.write(f"Parada Antecipada acionada: {'Sim' if parada_antecipada == 1 else 'Nao'}\n")
 
-np.savetxt(f"saidas/pesos_finais_v_teste.txt", mlp.v, fmt="%.6f")  # pesos finais — dá pra recarregar sem retreinar
-np.savetxt(f"saidas/pesos_finais_w_teste.txt", mlp.w, fmt="%.6f")
-np.savetxt(f"saidas/historico_erros_teste.txt", historico_erros, fmt="%.6f")  # curva de aprendizado
-np.savetxt(f"saidas/saidas_produzidas_teste.txt", np.array(saidas_brutas_teste), fmt="%.6f")  # saídas brutas (antes do argmax)
-np.savetxt(f"saidas/matriz_confusao_teste.txt", matriz_confusao, fmt="%d")
+np.savetxt(f"saidas/pesos_finais_v.txt", mlp.v, fmt="%.6f")
+np.savetxt(f"saidas/pesos_finais_w.txt", mlp.w, fmt="%.6f")
+np.savetxt(f"saidas/historico_erros.txt", historico_erros, fmt="%.6f")
+np.savetxt(f"saidas/saidas_produzidas.txt", np.array(saidas_brutas_teste), fmt="%.6f")
+np.savetxt(f"saidas/matriz_confusao.txt", matriz_confusao, fmt="%d")
 
 print("\n" + "="*40)
 print("[SUCESSO] Todos os artefatos de texto foram gerados na pasta '/saidas'!")
