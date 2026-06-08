@@ -38,17 +38,21 @@ class MLP:
         self.alpha = taxa_aprendizado    # passo da descida do gradiente
         self.erro_total = 1              # > 0 pra entrar no while
 
-        # uniforme(-1,1) — pesos iguais travam o aprendizado (simetria)
-        self.v = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1))  # +1 = bias
-        self.v_anterior = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1))
-        self.w = np.random.uniform(-1, 1, (self.n_saida, self.n_escondida + 1))    # +1 = bias
-        self.w_anterior = np.random.uniform(-1, 1, (self.n_saida, self.n_escondida + 1))
+        # Inicialização Xavier (Glorot) — previne saturação precoce da sigmoide
+        limite_v = np.sqrt(6.0 / (self.n_entrada + self.n_escondida))
+        self.v = np.random.uniform(-limite_v, limite_v, (self.n_escondida, self.n_entrada + 1))  # +1 = bias
+        self.v_anterior = np.random.uniform(-limite_v, limite_v, (self.n_escondida, self.n_entrada + 1))
+
+        limite_w = np.sqrt(6.0 / (self.n_escondida + self.n_saida))
+        self.w = np.random.uniform(-limite_w, limite_w, (self.n_saida, self.n_escondida + 1))    # +1 = bias
+        self.w_anterior = np.random.uniform(-limite_w, limite_w, (self.n_saida, self.n_escondida + 1))
 
 
     # -------------------------------------------------------------------------
     # Propagação Direta (Feedforward)
     # -------------------------------------------------------------------------
     # O sinal percorre a rede da entrada para a saída, camada por camada.
+    
     # Para cada neurônio: calcula-se a combinação linear de entradas e
     # pesos e aplica-se a função de ativação para obter a saída do neurônio.
     def feedforward(self, x, t):

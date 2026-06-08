@@ -1,7 +1,7 @@
 --- Hiperparametros Finais da Arquitetura e Inicializacao ---
 Neuronios de Entrada: 120
-Neuronios na Camada Escondida: 65
+Neuronios na Camada Escondida: 40
 Neuronios de Saida: 26
-Taxa de Aprendizado (Alpha): 0.01
-Total de Iteracoes executadas: 384
+Taxa de Aprendizado (Alpha): 0.1
+Total de Iteracoes executadas: 167
 Parada Antecipada acionada: Sim
