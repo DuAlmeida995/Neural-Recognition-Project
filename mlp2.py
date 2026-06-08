@@ -39,10 +39,10 @@ class MLP:
         self.erro_total = 1              # > 0 pra entrar no while
 
         # uniforme(-1,1) — pesos iguais travam o aprendizado (simetria)
-        self.v = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1))  # +1 = bias
-        self.v_anterior = np.random.uniform(-1, 1, (self.n_escondida, self.n_entrada + 1))
-        self.w = np.random.uniform(-1, 1, (self.n_saida, self.n_escondida + 1))    # +1 = bias
-        self.w_anterior = np.random.uniform(-1, 1, (self.n_saida, self.n_escondida + 1))
+        self.v = np.random.uniform(-0.03, 0.03, (self.n_escondida, self.n_entrada + 1))  # +1 = bias
+        self.v_anterior = np.random.uniform(-0.03, 0.03, (self.n_escondida, self.n_entrada + 1))
+        self.w = np.random.uniform(-0.02, 0.02, (self.n_saida, self.n_escondida + 1))    # +1 = bias
+        self.w_anterior = np.random.uniform(-0.02, 0.02, (self.n_saida, self.n_escondida + 1))
 
 
     # -------------------------------------------------------------------------
@@ -91,6 +91,10 @@ class MLP:
         self.w = self.w + delta_w
         self.v = self.v + delta_v
 
+    def recuperar_pesos(self, melhorv, melhorw):
+        self.v = melhorv
+        self.w = melhorw
+
 
 
 import os
@@ -116,7 +120,7 @@ erros_treinamento_total = 0
 os.makedirs("saidas", exist_ok=True)  # cria pasta se não existir
 
 for varx in range(1, 2):
-    mlp = MLP(120, 40, 26, 0.1)  # 120 → 65 → 26, α=0.01
+    mlp = MLP(120, 50, 26, 0.07)  # 120 → 65 → 26, α=0.01
 
     # salva pesos iniciais pra comparar depois
     np.savetxt(f"saidas/pesos_iniciais_v_teste_{varx}.txt", mlp.v, fmt="%.6f")
@@ -131,11 +135,15 @@ for varx in range(1, 2):
     par_erros_treinamento = 1  # > 0 pra entrar no while
     erro_aceitavel = 0         # flag de parada antecipada
 
+    melhorV = mlp.v.copy()  # pra armazenar os melhores pesos encontrados
+    melhorW = mlp.w.copy()
+    melhor_erro = float('inf')  # inicializa com infinito pra garantir que o primeiro erro seja melhor
+
     historico_erros = []
 
     # treina até convergir, atingir 10000 épocas ou parada antecipada
     # últimos 130 exemplos são reservados pra teste
-    while ((not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior))) and i < 10000 and erro_aceitavel != 1):
+    while ((not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior))) and erro_aceitavel < 10):
         mlp.v_anterior = mlp.v.copy()
         mlp.w_anterior = mlp.w.copy()
 
@@ -144,6 +152,7 @@ for varx in range(1, 2):
             mlp.backpropagation(caracteristicasTreinamento[j])
 
         # treinamento online: um exemplo por vez
+
         par_erros_treinamento = 0
         for j in range(len(caracteristicasValidacao)):
             mlp.feedforward(caracteristicasValidacao[j], rotuloValidacao[j])    
@@ -151,6 +160,10 @@ for varx in range(1, 2):
 
         # erro médio da época
         par_erros_treinamento = par_erros_treinamento / (len(caracteristicasValidacao))
+        if par_erros_treinamento < melhor_erro:
+            melhor_erro = par_erros_treinamento
+            melhorV = mlp.v.copy()
+            melhorW = mlp.w.copy()
 
         # Registra o erro desta época no histórico
         historico_erros.append(par_erros_treinamento)
@@ -160,13 +173,16 @@ for varx in range(1, 2):
         print("Iteracao:", i, "Erro total:", par_erros_treinamento)
 
         # parada antecipada: aguarda 300 épocas antes pra rede ter tempo de aprender
-        if i >= 20 and historico_erros[i-20] - par_erros_treinamento < 0.00005:
-            erro_aceitavel = 1
+        if i > 10 and (historico_erros[-2] - par_erros_treinamento < 0.000001):
+            erro_aceitavel += 1
+        else:
+            erro_aceitavel = 0
 
 
     # avaliação no teste — matriz 26×26: linha=real, coluna=predito
     saidas_brutas_teste = []
     matriz_confusao = np.zeros((26, 26), dtype=int)
+    mlp.recuperar_pesos(melhorV, melhorW)  # usa os melhores pesos encontrados durante o treinamento
 
     for j in range(len(caracteristicasTeste)):
         # troca por teste_autoral[j] pra usar os dados autorais modificados
