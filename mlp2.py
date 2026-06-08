@@ -39,10 +39,15 @@ class MLP:
         self.erro_total = 1              # > 0 pra entrar no while
 
         # uniforme(-1,1) — pesos iguais travam o aprendizado (simetria)
-        self.v = np.random.uniform(-0.03, 0.03, (self.n_escondida, self.n_entrada + 1))  # +1 = bias
-        self.v_anterior = np.random.uniform(-0.03, 0.03, (self.n_escondida, self.n_entrada + 1))
-        self.w = np.random.uniform(-0.02, 0.02, (self.n_saida, self.n_escondida + 1))    # +1 = bias
-        self.w_anterior = np.random.uniform(-0.02, 0.02, (self.n_saida, self.n_escondida + 1))
+        self.v = np.random.uniform(-1/self.n_entrada, 1/self.n_entrada, (self.n_escondida, self.n_entrada + 1))  # +1 = bias
+        self.v_anterior = np.random.uniform(-1/self.n_entrada, 1/self.n_entrada, (self.n_escondida, self.n_entrada + 1))
+        self.w = np.random.uniform(-1/self.n_escondida, 1/self.n_escondida, (self.n_saida, self.n_escondida + 1))    # +1 = bias
+        self.w_anterior = np.random.uniform(-1/self.n_escondida, 1/self.n_escondida, (self.n_saida, self.n_escondida + 1))
+
+        # self.v = np.zeros((self.n_escondida, self.n_entrada + 1))+(1/self.n_entrada)  # +1 = bias
+        # self.v_anterior = np.zeros((self.n_escondida, self.n_entrada + 1))
+        # self.w = np.zeros((self.n_saida, self.n_escondida + 1))+(1/self.n_escondida)
+        # self.w_anterior = np.zeros((self.n_saida, self.n_escondida + 1))
 
 
     # -------------------------------------------------------------------------
@@ -114,123 +119,115 @@ rotuloTreinamento = rotulo[0:858]
 rotuloValidacao = rotulo[858:858+338]
 rotuloTeste = rotulo[858+338:858+338+130]
 
-acertos_treinamento_total = 0
-erros_treinamento_total = 0
-
 os.makedirs("saidas", exist_ok=True)  # cria pasta se não existir
 
-for varx in range(1, 2):
-    mlp = MLP(120, 50, 26, 0.07)  # 120 → 65 → 26, α=0.01
+camada_escondida = 120
+taxa_aprendizado = 0.07
+paciencia = 20  # épocas de paciência pra parada antecipada
 
-    # salva pesos iniciais pra comparar depois
-    np.savetxt(f"saidas/pesos_iniciais_v_teste_{varx}.txt", mlp.v, fmt="%.6f")
-    np.savetxt(f"saidas/pesos_iniciais_w_teste_{varx}.txt", mlp.w, fmt="%.6f")
+mlp = MLP(120, camada_escondida, 26, taxa_aprendizado)
 
-    acertos = 0
-    acertos_treinamento = 0
-    erros = 0
-    erros_treinamento = 0
+# salva pesos iniciais pra comparar depois
+np.savetxt(f"saidas/pesos_iniciais_v_teste.txt", mlp.v, fmt="%.6f")
+np.savetxt(f"saidas/pesos_iniciais_w_teste.txt", mlp.w, fmt="%.6f")
 
-    i = 1
-    par_erros_treinamento = 1  # > 0 pra entrar no while
-    erro_aceitavel = 0         # flag de parada antecipada
+acertos_treinamento = 0
+erros_treinamento = 0
 
-    melhorV = mlp.v.copy()  # pra armazenar os melhores pesos encontrados
-    melhorW = mlp.w.copy()
-    melhor_erro = float('inf')  # inicializa com infinito pra garantir que o primeiro erro seja melhor
+i = 0
+par_erros_treinamento = 1  # > 0 pra entrar no while
+erro_aceitavel = 0         # flag de parada antecipada
 
-    historico_erros = []
+melhorV = mlp.v.copy()  # pra armazenar os melhores pesos encontrados
+melhorW = mlp.w.copy()
+melhor_erro = float('inf')  # inicializa com infinito pra garantir que o primeiro erro seja melhor
 
-    # treina até convergir, atingir 10000 épocas ou parada antecipada
-    # últimos 130 exemplos são reservados pra teste
-    while ((not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior))) and erro_aceitavel < 10):
-        mlp.v_anterior = mlp.v.copy()
-        mlp.w_anterior = mlp.w.copy()
+historico_erros = []
 
-        for j in range(len(caracteristicasTreinamento)):
-            mlp.feedforward(caracteristicasTreinamento[j], rotuloTreinamento[j])
-            mlp.backpropagation(caracteristicasTreinamento[j])
+# treina até convergir, atingir 5000 épocas ou parada antecipada
+# últimos 130 exemplos são reservados pra teste
+while (i < 5000 and (not (np.array_equal(mlp.w, mlp.w_anterior) and np.array_equal(mlp.v, mlp.v_anterior))) and erro_aceitavel < paciencia):
+    mlp.v_anterior = mlp.v.copy()
+    mlp.w_anterior = mlp.w.copy()
 
-        # treinamento online: um exemplo por vez
+    for j in range(len(caracteristicasTreinamento)):
+        mlp.feedforward(caracteristicasTreinamento[j], rotuloTreinamento[j])
+        mlp.backpropagation(caracteristicasTreinamento[j])
 
-        par_erros_treinamento = 0
-        for j in range(len(caracteristicasValidacao)):
-            mlp.feedforward(caracteristicasValidacao[j], rotuloValidacao[j])    
-            par_erros_treinamento += mlp.erro_total
+    # treinamento online: um exemplo por vez
 
-        # erro médio da época
-        par_erros_treinamento = par_erros_treinamento / (len(caracteristicasValidacao))
-        if par_erros_treinamento < melhor_erro:
-            melhor_erro = par_erros_treinamento
-            melhorV = mlp.v.copy()
-            melhorW = mlp.w.copy()
+    par_erros_treinamento = 0
+    for j in range(len(caracteristicasValidacao)):
+        mlp.feedforward(caracteristicasValidacao[j], rotuloValidacao[j])    
+        par_erros_treinamento += mlp.erro_total
 
-        # Registra o erro desta época no histórico
-        historico_erros.append(par_erros_treinamento)
+    # erro médio da época
+    par_erros_treinamento = par_erros_treinamento / (len(caracteristicasValidacao))
+    if par_erros_treinamento < melhor_erro:
+        melhor_erro = par_erros_treinamento
+        melhorV = mlp.v.copy()
+        melhorW = mlp.w.copy()
 
-        i += 1
+    # Registra o erro desta época no histórico
+    historico_erros.append(par_erros_treinamento)
 
-        print("Iteracao:", i, "Erro total:", par_erros_treinamento)
+    i += 1
 
-        # parada antecipada: aguarda 300 épocas antes pra rede ter tempo de aprender
-        if i > 10 and (historico_erros[-2] - par_erros_treinamento < 0.000001):
-            erro_aceitavel += 1
-        else:
-            erro_aceitavel = 0
+    print("Iteracao:", i, "Erro total:", par_erros_treinamento)
+
+    # parada antecipada: aguarda 300 épocas antes pra rede ter tempo de aprender
+    if i > 10 and (historico_erros[-2] - par_erros_treinamento < 0.0001/paciencia):
+        erro_aceitavel += 1
+    else:
+        erro_aceitavel = 0
 
 
-    # avaliação no teste — matriz 26×26: linha=real, coluna=predito
-    saidas_brutas_teste = []
-    matriz_confusao = np.zeros((26, 26), dtype=int)
-    mlp.recuperar_pesos(melhorV, melhorW)  # usa os melhores pesos encontrados durante o treinamento
+# avaliação no teste — matriz 26×26: linha=real, coluna=predito
+saidas_brutas_teste = []
+matriz_confusao = np.zeros((26, 26), dtype=int)
+mlp.recuperar_pesos(melhorV, melhorW)  # usa os melhores pesos encontrados durante o treinamento
 
-    for j in range(len(caracteristicasTeste)):
-        # troca por teste_autoral[j] pra usar os dados autorais modificados
-        teste_autoralX = np.load("Conjunto de Dados/caracteres-completo/X_autoral.npy")
-        
-        #resultado = mlp.feedforward(teste_autoral[j])
-        resultado = mlp.feedforward(caracteristicasTeste[j], rotuloTeste[j])
-        saidas_brutas_teste.append(resultado)
+for j in range(len(caracteristicasTeste)):
+    # troca por teste_autoral[j] pra usar os dados autorais modificados
+    teste_autoralX = np.load("Conjunto de Dados/caracteres-completo/X_autoral.npy")
+    
+    #resultado = mlp.feedforward(teste_autoral[j])
+    resultado = mlp.feedforward(caracteristicasTeste[j], rotuloTeste[j])
+    saidas_brutas_teste.append(resultado)
 
-        classe_predita = np.argmax(resultado)
-        classe_real = np.argmax(rotuloTeste[j])
-        matriz_confusao[classe_real][classe_predita] += 1
+    classe_predita = np.argmax(resultado)
+    classe_real = np.argmax(rotuloTeste[j])
+    matriz_confusao[classe_real][classe_predita] += 1
 
-        if classe_predita == classe_real:
-            acertos_treinamento += 1
-        else:
-            erros_treinamento += 1
+    if classe_predita == classe_real:
+        acertos_treinamento += 1
+    else:
+        erros_treinamento += 1
 
-    print("Resultado do teste: ", varx)
-    print("Acertos no treinamento:", acertos_treinamento)
-    print("Erros no treinamento:", erros_treinamento)
-    print("Acurácia no treinamento:", acertos_treinamento / (acertos_treinamento + erros_treinamento))
-    print("Iterações: ", i)
+print("Resultado do teste: ")
+print("Acertos no treinamento:", acertos_treinamento)
+print("Erros no treinamento:", erros_treinamento)
+print("Acurácia no treinamento:", acertos_treinamento / (acertos_treinamento + erros_treinamento))
+print("Iterações: ", i)
 
-    acertos_treinamento_total += acertos_treinamento
-    erros_treinamento_total += erros_treinamento
+# salva todos os artefatos em disco
+print(f"\n[INFO] Gravando relatorios do experimento em disco...")
 
-    # salva todos os artefatos em disco
-    print(f"\n[INFO] Gravando relatorios do experimento {varx} em disco...")
+with open(f"saidas/hiperparametros_teste.txt", "w") as f:
+    f.write("--- Hiperparametros Finais da Arquitetura e Inicializacao ---\n")
+    f.write(f"Neuronios de Entrada: {mlp.n_entrada}\n")
+    f.write(f"Neuronios na Camada Escondida: {mlp.n_escondida}\n")
+    f.write(f"Neuronios de Saida: {mlp.n_saida}\n")
+    f.write(f"Taxa de Aprendizado (Alpha): {mlp.alpha}\n")
+    f.write(f"Total de Iteracoes executadas: {i}\n")
+    f.write(f"Parada Antecipada acionada: {'Sim' if erro_aceitavel >= paciencia else 'Nao'}\n")
 
-    with open(f"saidas/hiperparametros_teste_{varx}.txt", "w") as f:
-        f.write("--- Hiperparametros Finais da Arquitetura e Inicializacao ---\n")
-        f.write(f"Neuronios de Entrada: {mlp.n_entrada}\n")
-        f.write(f"Neuronios na Camada Escondida: {mlp.n_escondida}\n")
-        f.write(f"Neuronios de Saida: {mlp.n_saida}\n")
-        f.write(f"Taxa de Aprendizado (Alpha): {mlp.alpha}\n")
-        f.write(f"Total de Iteracoes executadas: {i - 1}\n")
-        f.write(f"Parada Antecipada acionada: {'Sim' if erro_aceitavel == 1 else 'Nao'}\n")
-
-    np.savetxt(f"saidas/pesos_finais_v_teste_{varx}.txt", mlp.v, fmt="%.6f")  # pesos finais — dá pra recarregar sem retreinar
-    np.savetxt(f"saidas/pesos_finais_w_teste_{varx}.txt", mlp.w, fmt="%.6f")
-    np.savetxt(f"saidas/historico_erros_teste_{varx}.txt", historico_erros, fmt="%.6f")  # curva de aprendizado
-    np.savetxt(f"saidas/saidas_produzidas_teste_{varx}.txt", np.array(saidas_brutas_teste), fmt="%.6f")  # saídas brutas (antes do argmax)
-    np.savetxt(f"saidas/matriz_confusao_teste_{varx}.txt", matriz_confusao, fmt="%d")
+np.savetxt(f"saidas/pesos_finais_v_teste.txt", mlp.v, fmt="%.6f")  # pesos finais — dá pra recarregar sem retreinar
+np.savetxt(f"saidas/pesos_finais_w_teste.txt", mlp.w, fmt="%.6f")
+np.savetxt(f"saidas/historico_erros_teste.txt", historico_erros, fmt="%.6f")  # curva de aprendizado
+np.savetxt(f"saidas/saidas_produzidas_teste.txt", np.array(saidas_brutas_teste), fmt="%.6f")  # saídas brutas (antes do argmax)
+np.savetxt(f"saidas/matriz_confusao_teste.txt", matriz_confusao, fmt="%d")
 
 print("\n" + "="*40)
-print("Acertos totais no treinamento:", acertos_treinamento_total)
-print("Erros totais no treinamento:", erros_treinamento_total)
-print("Acurácia total no treinamento:", acertos_treinamento_total / (acertos_treinamento_total + erros_treinamento_total))
 print("[SUCESSO] Todos os artefatos de texto foram gerados na pasta '/saidas'!")
 print("="*40)
