@@ -59,7 +59,7 @@ class MLP:
         self.erro_saida = (t - self.y) # O erro é a diferença entre o vetor de rótulo (target) e a saída da rede neural
         self.delta_saida = self.erro_saida * derivada_sigmoide(self.y_in) # O delta de saída é o erro multiplicado pela derivada da função de ativação aplicada à entrada da camada de saída (y_in)
         
-        # Retorna a saída da camada de saída (após a aplicação do argmax e conversão para one-hot encoding)
+        # Retorna a saída da camada de saída bruta
         return self.y
     
     # Função de retropropagação (backpropagation) que atualiza os pesos da rede neural com base no erro calculado na função de feedforward
@@ -110,9 +110,10 @@ os.makedirs("saidas", exist_ok=True)
 
 
 # Hiperparâmetros da arquitetura e treinamento
-camada_escondida = 60 # Define o número de neurônios presentes na camada escondida
-taxa_aprendizado = 0.05 # Define a taxa de aprendizado do MLP
-paciencia = 20 # Define o número de épocas de paciência para a parada antecipada (número de épocas consecutivas sem melhoria significativa no erro de validação antes de parar o treinamento)
+camada_escondida = 80 # Define o número de neurônios presentes na camada escondida
+taxa_aprendizado = 0.07 # Define a taxa de aprendizado do MLP
+paciencia = 18 # Define o número de épocas de paciência para a parada antecipada (número de épocas consecutivas sem melhoria significativa no erro de validação antes de parar o treinamento)
+max_epocas = 2000 # Define o número máximo de épocas para o treinamento, caso a parada antecipada não seja acionada
 
 # Inicializa o MLP com os parâmetros definidos
 mlp = MLP(120, camada_escondida, 26, taxa_aprendizado)
@@ -139,7 +140,7 @@ erros_teste = 0
 historico_erros = []
 
 i = 0 # Variável para guardar o número de épocas (iterações) durante o treinamento
-while (i < 5000  and not parada_antecipada): # Condições para o fim do treinamento: atingir 5000 épocas ou acionar a parada antecipada
+while (i < max_epocas  and not parada_antecipada): # Condições para o fim do treinamento: atingir 2000 épocas ou acionar a parada antecipada
     i += 1 # Incrementa o número de épocas no começo do loop
 
     # Treina a rede neural usando o conjunto de treinamento, realizando o feedforward e backpropagation para cada exemplo
