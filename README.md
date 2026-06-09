@@ -17,10 +17,10 @@ Este repositório contém o desenvolvimento e a implementação manual de uma re
 ## Sobre a Multilayer Perceptron (MLP)
 Implementação matemática pura da arquitetura **Feedforward** com algoritmo de treinamento **Backpropagation** baseado em **Gradiente Descendente**.
 ### Principais Características Implementadas:
-* **Camadas:** Uma única camada escondida configurável.
-* **Função de Perda:** Erro Quadrático Médio (MSE).
-* **Mecanismos de Parada:** Monitoramento de convergência por iterações e **Parada Antecipada (Early Stopping)** baseada em limiar de erro aceitável.
-* **Validação (Hold-Out):** Divisão automática isolando as últimas 130 instâncias do conjunto de dados exclusivamente para a fase de testes.
+* **Camadas:** Uma única camada escondida configurável com pesos inicializados via distribuição uniforme estável.
+* **Função de Perda:** Erro Quadrático Médio (MSE - *Mean Squared Error*).
+* **Mecanismos de Parada:** Critério de convergência por iterações e **Parada Antecipada (Early Stopping)** automática baseada no monitoramento de estagnação de erro no conjunto de validação.
+* **Validação (Hold-Out):** Divisão explícita das amostras do dataset em três conjuntos independentes e isolados em memória: **Treinamento** (para ajuste aditivo de pesos), **Validação** (para controle do Early Stopping) e **Teste** (reservado exclusivamente para avaliação final de acurácia).
 
 ---
 
@@ -75,8 +75,13 @@ Rode o script principal para treinar a rede no dataset de caracteres completo e 
 ```bash
 python mlp.py
 ```
+**Passo C: Plotar a Curva de Comportamento de Erros**
+Para processar os logs de perda e renderizar o gráfico do MSE por época, execute:
+```bash
+python visualizar_erros.py
+```
 
-**Passo C: Plotar o Gráfico da Matriz de Confusão**
+**Passo D: Plotar o Gráfico da Matriz de Confusão**
 Após a finalização do teste, gere a visualização gráfica (mapa de calor):
 ```bash 
 python visualizar_matriz.py
