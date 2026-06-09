@@ -27,7 +27,6 @@ fundo = np.max(X)  # valor do background
 traco = np.min(X)  # valor do traço da letra
 
 print("Alterando o conjunto de teste...")
-inicio_teste = len(X) - 130  # últimos 130 são o conjunto de teste
 
 #------------------------------------------------------
 # Escolhe qual letra será visualizada
@@ -41,7 +40,7 @@ inicio_teste = len(X) - 130  # últimos 130 são o conjunto de teste
 # plt.show()
 #------------------------------------------------------
 
-for i in range(inicio_teste, len(X)):
+for i in range(len(X_autoral)):
     letra = X_autoral[i]  # imagem 12x10
     
     # sorteia defeito: corte apaga uma linha inteira, chuvisco inverte 6 pixels
@@ -67,16 +66,3 @@ for i in range(inicio_teste, len(X)):
 # Salva o novo arquivo com o conjunto de dados de teste alterado
 np.save("Conjunto de Dados/caracteres-completo/X_autoral.npy", X_autoral)
 print("Arquivo 'X_autoral.npy' gerado")
-
-#------------------------------------------------------
-# Escolhe qual letra será visualizada
-#indice = inicio_teste
-#imagem_letra = X_autoral[indice]
-
-# Configuração da exibição da imagem
-# O cmap='gray' -> preto e branco
-#plt.imshow(imagem_letra, cmap='gray')
-#plt.title(f"Visualização da letra no índice {indice}")
-#plt.show()
-#------------------------------------------------------
-

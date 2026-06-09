@@ -92,7 +92,8 @@ class MLP:
 caracteristicas_duas_dimensoes = np.load("Conjunto de Dados/caracteres-completo/X.npy") # Carrega o conjunto de dados de características a partir do arquivo X.npy, que contém os valores em formato de matriz 12x10
 caracteristicas = caracteristicas_duas_dimensoes.reshape(caracteristicas_duas_dimensoes.shape[0], -1) # Transforma a matriz 12x10 em um vetor de 120 características para cada exemplo
 rotulo = np.load("Conjunto de Dados/caracteres-completo/Y_classe.npy") # Carrega o conjunto de dados de rótulos a partir do arquivo Y_classe.npy
-teste_autoralX = np.load("Conjunto de Dados/caracteres-completo/X_autoral.npy") # Carrega o conjunto de dados de teste autoral a partir do arquivo X_autoral.npy
+caracteristicas_duas_dimensoes_teste_autoral = np.load("Conjunto de Dados/caracteres-completo/X_autoral.npy") # Carrega o conjunto de dados de teste autoral a partir do arquivo X_autoral.npy
+caracteristicas_teste_autoral = caracteristicas_duas_dimensoes_teste_autoral.reshape(caracteristicas_duas_dimensoes_teste_autoral.shape[0], -1) # Transforma a matriz 12x10 em um vetor de 120 características para cada exemplo do conjunto de teste autoral
 
 # Divide os dados em conjuntos de treinamento, validação e teste
 caracteristicas_treinamento = caracteristicas[0:858] # Os primeiros 858 exemplos são usados para treinamento (33 conjuntos de cada letra)
@@ -135,6 +136,10 @@ epocas_sem_melhora = 0 # Contador de épocas sem melhoria no erro de validação
 # Contadores de acertos e erros durante a fase de teste
 acertos_teste = 0
 erros_teste = 0
+
+# Contadores de acertos e erros durante a fase de teste autoral
+acertos_teste_autoral = 0
+erros_teste_autoral = 0
 
 # Vetor responsável por guardar os erros em cada época
 historico_erros = []
@@ -202,11 +207,35 @@ for j in range(len(caracteristicas_teste)):
     else:
         erros_teste += 1
 
+saidas_brutas_teste_autoral = [] # Vetor para armazenar as saídas brutas da rede neural para cada exemplo do conjunto de teste
+matriz_confusao_autoral = np.zeros((26, 26), dtype=int) # Matriz de confusão para avaliar o desempenho da rede neural no conjunto de teste, onde as linhas representam as classes reais e as colunas representam as classes preditas
+# Loop que itera o conjunto de testes autoral
+for j in range(len(caracteristicas_teste_autoral)):
+
+    resultado = mlp.feedforward(caracteristicas_teste_autoral[j], rotulo[j]) # Realiza o feedforward para o exemplo de teste atual e armazena a saída bruta (antes da aplicação do argmax)
+    saidas_brutas_teste_autoral.append(resultado) # Armazena a saída bruta da rede neural para o exemplo de teste atual no vetor de saídas brutas
+
+    # Calcula a classe predita usando argmax
+    classe_predita = argmax(resultado)
+    classe_real = argmax(rotulo[j])
+
+    matriz_confusao_autoral[classe_real][classe_predita] += 1 # Atualiza a matriz de confusão incrementando a contagem na posição correspondente à classe real e classe predita
+
+    # Verifica se a classe predita é igual à classe real para contar acertos e erros no teste
+    if classe_predita == classe_real:
+        acertos_teste_autoral += 1
+    else:
+        erros_teste_autoral += 1
+
+
 # Imprime os resultados do teste
 print("Resultado do teste: ")
 print("Acertos no teste:", acertos_teste)
 print("Erros no teste:", erros_teste)
 print("Acurácia no teste:", acertos_teste / (acertos_teste + erros_teste))
+print("Acertos no teste autoral:", acertos_teste_autoral)
+print("Erros no teste autoral:", erros_teste_autoral)
+print("Acurácia no teste autoral:", acertos_teste_autoral / (acertos_teste_autoral + erros_teste_autoral))
 print("Iterações: ", i)
 
 
@@ -227,6 +256,8 @@ np.savetxt(f"saidas/pesos_finais_w.txt", mlp.w, fmt="%.6f")
 np.savetxt(f"saidas/historico_erros.txt", historico_erros, fmt="%.6f")
 np.savetxt(f"saidas/saidas_produzidas.txt", np.array(saidas_brutas_teste), fmt="%.6f")
 np.savetxt(f"saidas/matriz_confusao.txt", matriz_confusao, fmt="%d")
+np.savetxt(f"saidas/saidas_produzidas_autoral.txt", np.array(saidas_brutas_teste_autoral), fmt="%.6f")
+np.savetxt(f"saidas/matriz_confusao_autoral.txt", matriz_confusao_autoral, fmt="%d")
 
 print("\n" + "="*40)
 print("[SUCESSO] Todos os artefatos de texto foram gerados na pasta '/saidas'!")
