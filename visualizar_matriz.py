@@ -12,7 +12,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 
-caminho_matriz = "saidas/matriz_confusao_teste_1.txt"
+caminho_matriz = "saidas/matriz_confusao.txt"
 caminho_salvamento = "saidas/matriz_confusao_visual.png"
 
 if not os.path.exists(caminho_matriz):
