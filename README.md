@@ -30,7 +30,6 @@ Implementação matemática pura da arquitetura **Feedforward** com algoritmo de
 * `testes_autorais.py`: Script responsável por carregar o dataset original e criar uma versão modificada aplicando ruídos customizados (*corte de linha* e *chuvisco*) nas instâncias de teste.
 * `visualizar_matriz.py`: Script utilitário que lê os dados de saída e gera a exibição gráfica da Matriz de Confusão em um mapa de calor.
 * `visualizar_erros.py`: Utilitário de monitoramento que carrega o histórico bruto de perdas (`historico_erros.txt`) e gera automaticamente o gráfico visual da evolução do Erro Quadrático Médio (MSE).
-* `plot.py`: Interface interativa desenvolvida para análise exploratória e busca em grade (*Grid Search*). Permite a filtragem e renderização dinâmica de gráficos 2D e superfícies 3D cruzando a Taxa de Aprendizado ($\alpha$), tamanho da Camada Escondida, Épocas de convergência e Acurácia.
 
 ### Relatórios de Saída (Pasta `/saidas`)
 O algoritmo exporta automaticamente para a pasta `saidas/` os seguintes arquivos de texto legíveis exigidos para a entrega:
