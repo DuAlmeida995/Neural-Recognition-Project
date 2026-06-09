@@ -87,11 +87,4 @@ Após a finalização do teste, gere a visualização gráfica (mapa de calor):
 python visualizar_matriz.py
 ```
 
-### Vídeo de Demonstração 
-O vídeo contendo a ilustração detalhada das execuções, análise dos gráficos de comportamento de erros e a discussão dos resultados da matriz de confusão pode ser acessado através do link abaixo:
-
-[Link para o Vídeo de Apresentação - e-Disciplinas / Repositório]
-
-Arquivo de minutagem correspondente depositado no sistema e-Disciplinas
-
 
