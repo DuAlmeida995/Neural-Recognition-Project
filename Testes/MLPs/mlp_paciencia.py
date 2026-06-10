@@ -22,13 +22,6 @@ def sigmoide(x):
 def derivada_sigmoide(x):
     return sigmoide(x) * (1 - sigmoide(x))
 
-def tanh(x):
-    return np.tanh(x)
-
-def derivada_tanh(x_in):
-    # f'(x) = 1 - tanh(x)^2
-    return 1 - np.tanh(x_in)**2
-
 # aprox. universal com uma camada escondida — dá conta das 26 letras
 class MLP:
     def __init__(self, n_entrada, n_escondida, n_saida, taxa_aprendizado):
@@ -121,13 +114,13 @@ rotuloValidacao = rotulo[858:858+338]
 rotuloTeste = rotulo[858+338:858+338+130]
 
 stats = np.zeros(10)
-# np.save("Testes/Stats/statsAlpha.npy", stats)
+# np.save("Testes/Stats/statsPaciencia.npy", stats)
 
 for x in range(1, 11):
     for i in range(5):
-        camada_escondida = 60
-        taxa_aprendizado = 0.01 * x
-        paciencia = 20  # épocas de paciência pra parada antecipada
+        camada_escondida = 65
+        taxa_aprendizado = 0.05
+        paciencia = x+9  # épocas de paciência pra parada antecipada
 
         mlp = MLP(120, camada_escondida, 26, taxa_aprendizado)
 
@@ -204,7 +197,7 @@ for x in range(1, 11):
 
         stats[x-1] += acertos_treinamento/(acertos_treinamento + erros_treinamento)
         
-    stats[x-1] /= 5  # média dos 5 testes pra cada taxa de aprendizado
+    stats[x-1] /= 5  # média dos 5 testes pra cada número de épocas de paciência
 
-np.save("Testes/Stats/statsAlpha.npy", stats)
-print("[SUCESSO] Treinamento de taxa de aprendizado concluído e resultados salvos em disco!")
+np.save("Testes/Stats/statsPaciencia.npy", stats)
+print("[SUCESSO] Treinamento de paradas antecipadas concluído e resultados salvos em disco!")
